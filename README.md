@@ -8,8 +8,9 @@ UmaExtractor needs to run while the game is on **Enhance → List** (Veteran Lis
 
 - Load your extractor dump (file, drop, or paste)
 - Filter sparks in two columns:
-  - **All** — the spark can sit on the main parent or either grandparent
-  - **Main Parent** — the spark must sit on the veteran herself
+  - **All** — combined stars on the main parent and both grandparents (up to 9★)
+  - **Main Parent** — stars on the veteran herself (up to 3★)
+- Use **Show sparks** (All / Main / GP 1 / GP 2) to change which sparks cards display; this does not change the filters
 - Click **Add** under a color to insert a search box and star picker, then pick the factor
 - Combine factors with **All (AND)** or **Any (OR)** inside a combination, then add more combinations for extra AND/OR groups
 - Save named presets in this browser, or export / import a JSON filter file

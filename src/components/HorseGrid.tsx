@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import type { SortKey, Veteran } from "../types";
+import type { SortKey, SparkFocus, Veteran } from "../types";
+import { FocusTabs } from "./FocusTabs";
 import { HorseCard } from "./HorseCard";
 import styles from "./HorseGrid.module.css";
 
@@ -10,11 +11,22 @@ type Props = {
   total: number;
   query: string;
   sort: SortKey;
+  focus: SparkFocus;
   onQuery: (query: string) => void;
   onSort: (sort: SortKey) => void;
+  onFocus: (focus: SparkFocus) => void;
 };
 
-export function HorseGrid({ veterans, total, query, sort, onQuery, onSort }: Props) {
+export function HorseGrid({
+  veterans,
+  total,
+  query,
+  sort,
+  focus,
+  onQuery,
+  onSort,
+  onFocus,
+}: Props) {
   const [shown, setShown] = useState(PAGE);
   const sentinel = useRef<HTMLDivElement>(null);
 
@@ -51,13 +63,14 @@ export function HorseGrid({ veterans, total, query, sort, onQuery, onSort }: Pro
           Sort
           <select
             value={sort}
+            title="Winning saddles are race-title saddles this veteran earned"
             onChange={(event) => onSort(event.target.value as SortKey)}
           >
             <option value="rankScore">Rank score</option>
             <option value="newest">Newest</option>
             <option value="oldest">Oldest</option>
             <option value="whiteCount">White sparks</option>
-            <option value="g1">Win saddles</option>
+            <option value="g1">Winning saddles</option>
             <option value="speed">Speed</option>
             <option value="stamina">Stamina</option>
             <option value="power">Power</option>
@@ -69,12 +82,16 @@ export function HorseGrid({ veterans, total, query, sort, onQuery, onSort }: Pro
           {veterans.length} of {total} veterans
         </p>
       </div>
+      <div className={styles.focusRow}>
+        <p className={styles.focusLabel}>Show sparks</p>
+        <FocusTabs value={focus} onChange={onFocus} />
+      </div>
       {visible.length === 0 ? (
         <p className={styles.empty}>No veterans match those filters.</p>
       ) : (
         <div className={styles.grid}>
           {visible.map((veteran) => (
-            <HorseCard key={veteran.id} veteran={veteran} />
+            <HorseCard key={veteran.id} veteran={veteran} focus={focus} onFocus={onFocus} />
           ))}
         </div>
       )}

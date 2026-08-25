@@ -6,12 +6,13 @@ import { UploadPanel } from "./components/UploadPanel";
 import { applyFilter, emptyFilter } from "./lib/filter";
 import { ParseError, parseDump, parseDumpText } from "./lib/parseDump";
 import { clearRoster, loadRoster, saveRoster } from "./lib/storage";
-import type { FilterState, Veteran } from "./types";
+import type { FilterState, SparkFocus, Veteran } from "./types";
 import styles from "./App.module.css";
 
 export default function App() {
   const [veterans, setVeterans] = useState<Veteran[] | null>(null);
   const [filter, setFilter] = useState<FilterState>(emptyFilter);
+  const [focus, setFocus] = useState<SparkFocus>("all");
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   const [menuOpen, setMenuOpen] = useState(true);
@@ -85,8 +86,10 @@ export default function App() {
         total={veterans.length}
         query={filter.query}
         sort={filter.sort}
+        focus={focus}
         onQuery={(query) => setFilter({ ...filter, query })}
         onSort={(sort) => setFilter({ ...filter, sort })}
+        onFocus={setFocus}
       />
     </div>
   );

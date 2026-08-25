@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import type { FactorOption } from "../lib/names";
 import { newSparkRule, removeSparkRule, updateSparkRule } from "../lib/filter";
 import type { SparkRule } from "../types";
@@ -12,29 +12,45 @@ type Props = {
   catalog: FactorOption[];
   sparks: SparkRule[];
   onSparks: (next: SparkRule[]) => void;
+  maxStars?: number;
 };
 
-function StarSlider({ value, onChange }: { value: number; onChange: (stars: number) => void }) {
+function StarSlider({
+  value,
+  max,
+  onChange,
+}: {
+  value: number;
+  max: number;
+  onChange: (stars: number) => void;
+}) {
+  const clamped = Math.min(Math.max(value, 1), max);
+  const stops = Array.from({ length: max }, (_, i) => i + 1);
+
   return (
     <div className={styles.starSlider}>
-      <div className={styles.stops}>
+      <div className={styles.stops} style={{ "--stops": max } as CSSProperties}>
         <div className={styles.track} aria-hidden="true">
-          <div className={styles.fill} style={{ width: `${((value - 1) / 2) * 100}%` }} />
+          <div
+            className={styles.fill}
+            style={{ width: max <= 1 ? "100%" : `${((clamped - 1) / (max - 1)) * 100}%` }}
+          />
         </div>
-        {[1, 2, 3].map((n) => (
+        {stops.map((n) => (
           <button
             key={n}
             type="button"
-            className={`${styles.stop} ${n <= value ? styles.stopOn : ""}`}
+            className={`${styles.stop} ${n <= clamped ? styles.stopOn : ""}`}
             aria-label={`${n} star minimum`}
-            aria-pressed={n === value}
+            aria-pressed={n === clamped}
             onClick={() => onChange(n)}
           >
             <span className={styles.stopDot} />
-            <span className={n <= value ? styles.starOn : styles.starOff}>{"★".repeat(n)}</span>
+            <span className={n <= clamped ? styles.starOn : styles.starOff}>{n}</span>
           </button>
         ))}
       </div>
+      <p className={styles.starValue}>{clamped}★ minimum</p>
     </div>
   );
 }
@@ -44,6 +60,7 @@ function FactorRow({
   placeholder,
   catalog,
   taken,
+  maxStars,
   onChange,
   onRemove,
 }: {
@@ -51,6 +68,7 @@ function FactorRow({
   placeholder: string;
   catalog: FactorOption[];
   taken: Set<string>;
+  maxStars: number;
   onChange: (patch: Partial<SparkRule>) => void;
   onRemove: () => void;
 }) {
@@ -112,7 +130,11 @@ function FactorRow({
           </ul>
         ) : null}
       </div>
-      <StarSlider value={rule.minStars} onChange={(minStars) => onChange({ minStars })} />
+      <StarSlider
+        value={rule.minStars}
+        max={maxStars}
+        onChange={(minStars) => onChange({ minStars })}
+      />
     </div>
   );
 }
@@ -125,6 +147,7 @@ export function FactorGroup({
   catalog,
   sparks,
   onSparks,
+  maxStars = 3,
 }: Props) {
   const rows = sparks.filter((rule) => types.includes(rule.type));
   const taken = new Set(
@@ -141,6 +164,7 @@ export function FactorGroup({
           placeholder={placeholder}
           catalog={catalog}
           taken={taken}
+          maxStars={maxStars}
           onChange={(patch) => onSparks(updateSparkRule(sparks, rule.id, patch))}
           onRemove={() => onSparks(removeSparkRule(sparks, rule.id))}
         />

@@ -32,6 +32,20 @@
   font-size: 0.85rem;
 }
 
+.focusRow {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.focusLabel {
+  margin: 0;
+  color: #8b96a6;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
 @media (min-width: 720px) {
   .head {
     grid-template-columns: 1fr 220px auto;

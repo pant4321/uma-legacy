@@ -1,13 +1,15 @@
 import { useState } from "react";
-import type { AptitudeKey, Spark, Veteran } from "../types";
+import type { AptitudeKey, Spark, SparkFocus, Veteran } from "../types";
 import { APTITUDE_LETTERS } from "../types";
-import { lineageSparks, parentsOf } from "../lib/filter";
+import { parentsOf, sparksForFocus } from "../lib/filter";
 import { sparkColor } from "../lib/sparks";
 import { UmaIcon } from "./UmaIcon";
 import styles from "./HorseCard.module.css";
 
 type Props = {
   veteran: Veteran;
+  focus: SparkFocus;
+  onFocus: (focus: SparkFocus) => void;
 };
 
 const APT_ORDER: { key: AptitudeKey; label: string }[] = [
@@ -27,6 +29,10 @@ function letter(value: number): string {
   return APTITUDE_LETTERS[value] ?? "";
 }
 
+function starText(stars: number): string {
+  return stars > 3 ? `${stars}★` : "★".repeat(stars);
+}
+
 function SparkPills({ sparks }: { sparks: Spark[] }) {
   if (sparks.length === 0) return null;
   return (
@@ -36,17 +42,17 @@ function SparkPills({ sparks }: { sparks: Spark[] }) {
           key={`${spark.slot}-${spark.factorId}-${spark.name}`}
           className={`${styles.pill} ${styles[sparkColor(spark.type)]}`}
         >
-          {spark.name} {"★".repeat(spark.stars)}
+          {spark.name} {starText(spark.stars)}
         </li>
       ))}
     </ul>
   );
 }
 
-export function HorseCard({ veteran }: Props) {
+export function HorseCard({ veteran, focus, onFocus }: Props) {
   const [open, setOpen] = useState(false);
   const parents = parentsOf(veteran);
-  const shownSparks = lineageSparks(veteran);
+  const shownSparks = sparksForFocus(veteran, focus);
 
   return (
     <article className={`${styles.card} ${open ? styles.open : ""}`}>
@@ -64,28 +70,37 @@ export function HorseCard({ veteran }: Props) {
             <span>Pow {veteran.power}</span>
             <span>Gut {veteran.guts}</span>
             <span>Wit {veteran.wit}</span>
+            <span title="Race-title saddles this veteran earned">Saddles {veteran.winSaddleCount}</span>
           </p>
           <SparkPills sparks={shownSparks} />
         </div>
       </button>
       <div className={styles.parents}>
         {parents.gp1 ? (
-          <div className={styles.parent}>
+          <button
+            type="button"
+            className={`${styles.parent} ${focus === "gp1" ? styles.parentOn : ""}`}
+            onClick={() => onFocus("gp1")}
+          >
             <UmaIcon cardId={parents.gp1.cardId} name={parents.gp1.name} size="sm" />
             <span>
               <span className={styles.parentLabel}>GP 1</span>
               {parents.gp1.name}
             </span>
-          </div>
+          </button>
         ) : null}
         {parents.gp2 ? (
-          <div className={styles.parent}>
+          <button
+            type="button"
+            className={`${styles.parent} ${focus === "gp2" ? styles.parentOn : ""}`}
+            onClick={() => onFocus("gp2")}
+          >
             <UmaIcon cardId={parents.gp2.cardId} name={parents.gp2.name} size="sm" />
             <span>
               <span className={styles.parentLabel}>GP 2</span>
               {parents.gp2.name}
             </span>
-          </div>
+          </button>
         ) : null}
       </div>
       {open ? (

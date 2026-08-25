@@ -95,15 +95,15 @@
 
 .stops {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(var(--stops, 3), 1fr);
   position: relative;
 }
 
 .track {
   position: absolute;
   top: 5px;
-  left: 16.666%;
-  right: 16.666%;
+  left: calc(100% / (2 * var(--stops, 3)));
+  right: calc(100% / (2 * var(--stops, 3)));
   height: 3px;
   background: #2c3646;
   transform: translateY(-50%);
@@ -133,11 +133,11 @@
 }
 
 .stopDot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: #2c3646;
-  box-shadow: 0 0 0 3px #0d1219;
+  box-shadow: 0 0 0 2px #0d1219;
 }
 
 .stopOn .stopDot {
@@ -150,6 +150,13 @@
 
 .starOff {
   color: #3d4654;
+}
+
+.starValue {
+  margin: 0.15rem 0 0;
+  color: #d7b56d;
+  font-size: 0.7rem;
+  text-align: center;
 }
 
 .add {

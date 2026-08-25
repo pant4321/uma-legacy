@@ -113,6 +113,12 @@
   color: #9aa6b5;
   font-size: 0.75rem;
   padding: 0.2rem 0.45rem 0.2rem 0.2rem;
+  cursor: pointer;
+}
+
+.parentOn {
+  border-color: #d7b56d;
+  color: #f3d27a;
 }
 
 .parentLabel {

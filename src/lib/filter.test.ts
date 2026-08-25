@@ -74,6 +74,20 @@ describe("applyFilter", () => {
     expect(applyFilter(veterans, filter).map((v) => v.name)).toEqual(["Mejiro McQueen"]);
   });
 
+  it("sums All-column stars across the parent and both grandparents", () => {
+    const stacked = structuredClone(veterans[0]);
+    stacked.sparks.push(
+      { factorId: 203, name: "Stamina", type: 1, stars: 3, slot: "parent1" },
+      { factorId: 203, name: "Stamina", type: 1, stars: 2, slot: "parent2" },
+    );
+    const filter = emptyFilter();
+    filter.tree = node([rule(1, "Stamina", 8)]);
+    expect(applyFilter([stacked], filter)).toHaveLength(1);
+
+    filter.tree = node([rule(1, "Stamina", 9)]);
+    expect(applyFilter([stacked], filter)).toHaveLength(0);
+  });
+
   it("does not treat a grandparent spark as a Main Parent hit", () => {
     const filter = emptyFilter();
     filter.main = node([rule(2, "Mile", 3)]);
@@ -126,7 +140,7 @@ describe("normalizeFilter", () => {
 describe("describeNode", () => {
   it("prints OR combinations", () => {
     expect(describeNode(node([rule(1, "Power", 3), rule(1, "Stamina", 3)], "or"))).toBe(
-      "(Power ★★★ OR Stamina ★★★)",
+      "(Power 3★ OR Stamina 3★)",
     );
   });
 });
@@ -147,6 +161,12 @@ describe("lineageSparks", () => {
     expect(names).toContain("Stamina");
     expect(names).toContain("Medium");
     expect(names).not.toContain("Mile");
+  });
+
+  it("shows grandparent 1 sparks including Mile", () => {
+    const names = sparksForFocus(mcqueen, "gp1").map((s) => s.name);
+    expect(names).toContain("Mile");
+    expect(names).not.toContain("Stamina");
   });
 });
 

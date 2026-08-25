@@ -11,6 +11,8 @@ export type SparkSlot =
 
 export type NodeKey = "tree" | "main";
 
+export type SparkFocus = "all" | "main" | "gp1" | "gp2";
+
 export type JoinMode = "and" | "or";
 
 export type Spark = {
@@ -125,6 +127,22 @@ export const APTITUDE_LETTERS = ["", "G", "F", "E", "D", "C", "B", "A", "S"] as 
 
 export const TREE_SLOTS: SparkSlot[] = ["self", "parent1", "parent2"];
 export const MAIN_SLOTS: SparkSlot[] = ["self"];
+export const GP1_SLOTS: SparkSlot[] = ["parent1"];
+export const GP2_SLOTS: SparkSlot[] = ["parent2"];
+
+export const FOCUS_SLOTS: Record<SparkFocus, SparkSlot[]> = {
+  all: TREE_SLOTS,
+  main: MAIN_SLOTS,
+  gp1: GP1_SLOTS,
+  gp2: GP2_SLOTS,
+};
+
+export const FOCUS_LABELS: { id: SparkFocus; label: string; title: string }[] = [
+  { id: "all", label: "All", title: "Combined sparks from the parent and both grandparents" },
+  { id: "main", label: "Main", title: "Main parent sparks only" },
+  { id: "gp1", label: "GP 1", title: "Grandparent 1 sparks" },
+  { id: "gp2", label: "GP 2", title: "Grandparent 2 sparks" },
+];
 
 export const SORT_KEYS: SortKey[] = [
   "rankScore",

@@ -62,6 +62,7 @@ function Combination({
   group,
   greens,
   whites,
+  maxStars,
   onGroup,
   onRemove,
 }: {
@@ -70,6 +71,7 @@ function Combination({
   group: SparkGroup;
   greens: FactorOption[];
   whites: FactorOption[];
+  maxStars: number;
   onGroup: (group: SparkGroup) => void;
   onRemove: () => void;
 }) {
@@ -97,6 +99,7 @@ function Combination({
         catalog={BLUE_CATALOG}
         sparks={group.sparks}
         onSparks={(sparks) => onGroup({ ...group, sparks })}
+        maxStars={maxStars}
       />
       <FactorGroup
         title="Pink Factors (Aptitude)"
@@ -106,6 +109,7 @@ function Combination({
         catalog={PINK_CATALOG}
         sparks={group.sparks}
         onSparks={(sparks) => onGroup({ ...group, sparks })}
+        maxStars={maxStars}
       />
       <FactorGroup
         title="Green Factors (Unique)"
@@ -115,6 +119,7 @@ function Combination({
         catalog={greens}
         sparks={group.sparks}
         onSparks={(sparks) => onGroup({ ...group, sparks })}
+        maxStars={maxStars}
       />
       <FactorGroup
         title="White Factors (Skills / Races)"
@@ -124,6 +129,7 @@ function Combination({
         catalog={whites}
         sparks={group.sparks}
         onSparks={(sparks) => onGroup({ ...group, sparks })}
+        maxStars={maxStars}
       />
     </div>
   );
@@ -136,6 +142,7 @@ function FactorColumn({
   onNode,
   greens,
   whites,
+  maxStars,
 }: {
   title: string;
   hint: string;
@@ -143,6 +150,7 @@ function FactorColumn({
   onNode: (node: NodeFilter) => void;
   greens: FactorOption[];
   whites: FactorOption[];
+  maxStars: number;
 }) {
   const summary = describeNode(node);
 
@@ -167,6 +175,7 @@ function FactorColumn({
           group={group}
           greens={greens}
           whites={whites}
+          maxStars={maxStars}
           onGroup={(next) => onNode(updateGroup(node, group.id, next))}
           onRemove={() => onNode(removeGroup(node, group.id))}
         />
@@ -208,19 +217,21 @@ export function FilterPanel({ filter, onChange, onClearRoster }: Props) {
       <div className={styles.columns}>
         <FactorColumn
           title="All"
-          hint="Spark on the parent or either grandparent"
+          hint="Combined stars on the parent and both grandparents (up to 9★)"
           node={filter.tree}
           onNode={(node) => setNode("tree", node)}
           greens={greens}
           whites={whites}
+          maxStars={9}
         />
         <FactorColumn
           title="Main Parent"
-          hint="Spark on the main parent only"
+          hint="Stars on the main parent only (up to 3★)"
           node={filter.main}
           onNode={(node) => setNode("main", node)}
           greens={greens}
           whites={whites}
+          maxStars={3}
         />
       </div>
     </section>

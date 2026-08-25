@@ -4,12 +4,13 @@ import type {
   NodeFilter,
   SortKey,
   Spark,
+  SparkFocus,
   SparkGroup,
   SparkRule,
   SparkSlot,
   Veteran,
 } from "../types";
-import { MAIN_SLOTS, SORT_KEYS, TREE_SLOTS } from "../types";
+import { FOCUS_SLOTS, MAIN_SLOTS, SORT_KEYS, TREE_SLOTS } from "../types";
 
 export function emptyGroup(): SparkGroup {
   return { id: crypto.randomUUID(), join: "and", sparks: [] };
@@ -41,20 +42,36 @@ function sortSparks(sparks: Spark[]): Spark[] {
   return [...sparks].sort((a, b) => a.type - b.type || b.stars - a.stars || a.name.localeCompare(b.name));
 }
 
-export function lineageSparks(veteran: Veteran): Spark[] {
-  const raw = veteran.sparks.filter((spark) => TREE_SLOTS.includes(spark.slot));
-  const best = new Map<string, Spark>();
-  for (const spark of raw) {
-    const key = `${spark.type}:${spark.name}`;
-    const prev = best.get(key);
-    if (!prev || spark.stars > prev.stars) best.set(key, spark);
+export function sparkTotal(
+  veteran: Veteran,
+  type: SparkRule["type"],
+  kind: string,
+  slots: SparkSlot[],
+): number {
+  let total = 0;
+  for (const spark of veteran.sparks) {
+    if (slots.includes(spark.slot) && spark.type === type && spark.name === kind) {
+      total += spark.stars;
+    }
   }
-  return sortSparks([...best.values()]);
+  return total;
 }
 
-export function sparksForFocus(veteran: Veteran, focus: "all" | "main"): Spark[] {
+export function lineageSparks(veteran: Veteran): Spark[] {
+  const raw = veteran.sparks.filter((spark) => TREE_SLOTS.includes(spark.slot));
+  const summed = new Map<string, Spark>();
+  for (const spark of raw) {
+    const key = `${spark.type}:${spark.name}`;
+    const prev = summed.get(key);
+    if (!prev) summed.set(key, { ...spark, stars: spark.stars });
+    else summed.set(key, { ...prev, stars: prev.stars + spark.stars });
+  }
+  return sortSparks([...summed.values()]);
+}
+
+export function sparksForFocus(veteran: Veteran, focus: SparkFocus): Spark[] {
   if (focus === "all") return lineageSparks(veteran);
-  return sortSparks(veteran.sparks.filter((spark) => MAIN_SLOTS.includes(spark.slot)));
+  return sortSparks(veteran.sparks.filter((spark) => FOCUS_SLOTS[focus].includes(spark.slot)));
 }
 
 export function parentsOf(veteran: Veteran) {
@@ -69,13 +86,7 @@ function isActiveRule(rule: SparkRule): boolean {
 }
 
 function ruleMatches(veteran: Veteran, rule: SparkRule, slots: SparkSlot[]): boolean {
-  return veteran.sparks.some(
-    (spark) =>
-      slots.includes(spark.slot) &&
-      spark.type === rule.type &&
-      spark.name === rule.kind &&
-      spark.stars >= rule.minStars,
-  );
+  return sparkTotal(veteran, rule.type, rule.kind, slots) >= rule.minStars;
 }
 
 function groupMatches(veteran: Veteran, group: SparkGroup, slots: SparkSlot[]): boolean {
@@ -176,7 +187,7 @@ export function removeGroup(node: NodeFilter, id: string): NodeFilter {
 }
 
 function describeGroup(group: SparkGroup): string {
-  const bits = group.sparks.filter(isActiveRule).map((rule) => `${rule.kind} ${"★".repeat(rule.minStars)}`);
+  const bits = group.sparks.filter(isActiveRule).map((rule) => `${rule.kind} ${rule.minStars}★`);
   if (bits.length === 0) return "";
   const glue = group.join === "or" ? " OR " : " AND ";
   return bits.length > 1 ? `(${bits.join(glue)})` : bits[0];
@@ -198,7 +209,7 @@ function asRule(raw: unknown): SparkRule | null {
   const rec = raw as Record<string, unknown>;
   const type = rec.type;
   if (type !== 1 && type !== 2 && type !== 3 && type !== 4 && type !== 5 && type !== 6) return null;
-  const minStars = typeof rec.minStars === "number" && rec.minStars >= 1 && rec.minStars <= 3 ? rec.minStars : 1;
+  const minStars = typeof rec.minStars === "number" && rec.minStars >= 1 && rec.minStars <= 9 ? rec.minStars : 1;
   return {
     id: typeof rec.id === "string" && rec.id ? rec.id : crypto.randomUUID(),
     type,
