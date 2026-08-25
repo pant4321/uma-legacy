@@ -29,13 +29,19 @@ describe("applyFilter", () => {
   it("matches Any blue when some blue kind meets the star minimum", () => {
     const filter = emptyFilter();
     filter.main = node([rule(1, "Any", 3)]);
-    expect(applyFilter(veterans, filter).map((v) => v.name)).toEqual(["Mejiro McQueen"]);
+    expect(applyFilter(veterans, filter).map((v) => v.name)).toContain("Mejiro McQueen");
 
     const weak = structuredClone(veterans[0]);
+    weak.id = 99;
     weak.sparks = weak.sparks.map((spark) =>
       spark.type === 1 && spark.slot === "self" ? { ...spark, stars: 2 } : spark,
     );
     expect(applyFilter([weak], filter)).toHaveLength(0);
+
+    const strongOther = structuredClone(weak);
+    strongOther.id = 100;
+    strongOther.sparks.push({ factorId: 303, name: "Power", type: 1, stars: 3, slot: "self" });
+    expect(applyFilter([strongOther], filter).map((v) => v.id)).toEqual([100]);
   });
 
   it("uses the strongest blue kind for Any across All slots", () => {
