@@ -77,6 +77,7 @@ export type Veteran = {
   createdAt: number;
   createdText: string;
   whiteCount: number;
+  whiteParentCount: number;
 };
 
 export type SparkRule = {
@@ -102,6 +103,7 @@ export type SortKey =
   | "newest"
   | "oldest"
   | "whiteCount"
+  | "whiteParentCount"
   | "g1"
   | "speed"
   | "stamina"
@@ -145,10 +147,11 @@ export const FOCUS_LABELS: { id: SparkFocus; label: string; title: string }[] = 
 ];
 
 export const SORT_KEYS: SortKey[] = [
+  "whiteCount",
+  "whiteParentCount",
   "rankScore",
   "newest",
   "oldest",
-  "whiteCount",
   "g1",
   "speed",
   "stamina",

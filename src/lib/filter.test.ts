@@ -122,6 +122,24 @@ describe("applyFilter", () => {
     byName.query = "frontline elegance";
     expect(applyFilter(veterans, byName).map((v) => v.name)).toEqual(["Mejiro McQueen"]);
   });
+
+  it("defaults to white-spark sort and can sort by parent whites only", () => {
+    expect(emptyFilter().sort).toBe("whiteCount");
+
+    const stacked = structuredClone(veterans[1]);
+    stacked.id = 99;
+    stacked.whiteCount = 1;
+    stacked.whiteParentCount = 5;
+    stacked.sparks = [
+      ...stacked.sparks,
+      { factorId: 20033101, name: "Focus", type: 4, stars: 1, slot: "self" },
+    ];
+
+    const byParent = emptyFilter();
+    byParent.sort = "whiteParentCount";
+    const ordered = applyFilter([veterans[0], stacked], byParent);
+    expect(ordered[0].id).toBe(99);
+  });
 });
 
 describe("normalizeFilter", () => {

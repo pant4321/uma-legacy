@@ -25,7 +25,7 @@ export function emptyFilter(): FilterState {
     query: "",
     tree: emptyNode(),
     main: emptyNode(),
-    sort: "rankScore",
+    sort: "whiteCount",
   };
 }
 
@@ -136,6 +136,8 @@ function compareVeterans(a: Veteran, b: Veteran, sort: FilterState["sort"]): num
       return a.createdAt - b.createdAt;
     case "whiteCount":
       return b.whiteCount - a.whiteCount;
+    case "whiteParentCount":
+      return b.whiteParentCount - a.whiteParentCount;
     case "g1":
       return b.winSaddleCount - a.winSaddleCount;
     case "speed":
@@ -149,8 +151,9 @@ function compareVeterans(a: Veteran, b: Veteran, sort: FilterState["sort"]): num
     case "wit":
       return b.wit - a.wit;
     case "rankScore":
-    default:
       return b.rankScore - a.rankScore;
+    default:
+      return b.whiteCount - a.whiteCount;
   }
 }
 
@@ -247,7 +250,7 @@ export function normalizeNode(raw: unknown): NodeFilter {
 export function normalizeFilter(raw: unknown): FilterState | null {
   if (!raw || typeof raw !== "object") return null;
   const rec = raw as Record<string, unknown>;
-  const sort: SortKey = SORT_KEYS.includes(rec.sort as SortKey) ? (rec.sort as SortKey) : "rankScore";
+  const sort: SortKey = SORT_KEYS.includes(rec.sort as SortKey) ? (rec.sort as SortKey) : "whiteCount";
   return {
     query: typeof rec.query === "string" ? rec.query : "",
     sort,

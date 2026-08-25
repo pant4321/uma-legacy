@@ -24,9 +24,9 @@ export function UploadPanel({ error, onText, onLoadSample }: Props) {
         <h1>Search your veterans</h1>
         <p className={styles.lede}>
           Upload a dump from{" "}
-          <a href="https://github.com/xancia/UmaExtractor">UmaExtractor</a>. Run
-          it while the game is on the Veteran List screen (Enhance → List). The
-          file never leaves this browser.
+          <a href="https://github.com/xancia/UmaExtractor">UmaExtractor</a>. See
+          instructions and download in their repo. The file never leaves this
+          browser.
         </p>
       </header>
 

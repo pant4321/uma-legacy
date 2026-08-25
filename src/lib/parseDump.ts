@@ -132,6 +132,7 @@ export function veteranFromRaw(raw: unknown, index: number): Veteran | null {
     whiteCount: sparks.filter(
       (spark) => spark.type === 4 && TREE_SLOTS.includes(spark.slot),
     ).length,
+    whiteParentCount: selfSparks.filter((spark) => spark.type === 4).length,
   };
 }
 
