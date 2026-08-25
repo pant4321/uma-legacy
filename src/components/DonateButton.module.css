@@ -1,0 +1,39 @@
+.link {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid #3d4c63;
+  border-radius: 999px;
+  background: rgba(18, 24, 33, 0.92);
+  color: #c5cdd8;
+  font-size: 0.78rem;
+  font-weight: 500;
+  text-decoration: none;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
+}
+
+.link:hover {
+  border-color: #d7b56d;
+  color: #f4f1ea;
+  background: rgba(27, 36, 51, 0.96);
+}
+
+.link:focus-visible {
+  outline: 2px solid #8bb4e8;
+  outline-offset: 2px;
+}
+
+.icon {
+  font-size: 0.9rem;
+  line-height: 1;
+}
