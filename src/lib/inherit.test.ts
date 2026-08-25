@@ -48,16 +48,14 @@ describe("formatInheritPct", () => {
 });
 
 describe("formatSparkGroupHeading", () => {
-  it("shows unique count and cumulative spark total for every group", () => {
-    const groups = groupSparkChips(sparkChips(veterans[0], "all"));
-    for (const group of groups) {
-      const total = group.chips.reduce((sum, chip) => sum + chip.totalStars, 0);
-      expect(formatSparkGroupHeading(group.label, group.chips)).toBe(
-        `${group.label} (${group.chips.length}) - SPARK TOTAL (${total})`,
-      );
-    }
-    expect(formatSparkGroupHeading("Blue", [{ totalStars: 3 }, { totalStars: 2 }])).toBe(
-      "Blue (2) - SPARK TOTAL (5)",
+  it("adds SPARK TOTAL only for normal whites", () => {
+    expect(formatSparkGroupHeading("white", "Normal whites", [{ totalStars: 3 }, { totalStars: 2 }])).toBe(
+      "Normal whites (2) - SPARK TOTAL (5)",
     );
+    expect(formatSparkGroupHeading("race", "Race whites", [{ totalStars: 3 }])).toBe("Race whites (1)");
+    expect(formatSparkGroupHeading("scenario", "Scenario whites", [{ totalStars: 2 }, { totalStars: 1 }])).toBe(
+      "Scenario whites (2)",
+    );
+    expect(formatSparkGroupHeading("blue", "Blue", [{ totalStars: 3 }])).toBe("Blue");
   });
 });

@@ -47,7 +47,7 @@ function SparkBoard({
   return (
     <div className={styles.board}>
       {groups.map((group) => {
-        const heading = formatSparkGroupHeading(group.label, group.chips);
+        const heading = formatSparkGroupHeading(group.id, group.label, group.chips);
         const body = (
           <ul className={styles.sparks}>
             {group.chips.map((chip) => {
@@ -78,7 +78,13 @@ function SparkBoard({
         if (group.id === "white" || group.id === "race" || group.id === "scenario") {
           return (
             <details key={group.id} className={styles.group} open>
-              <summary title="Unique sparks in this group, then total ★ across them">
+              <summary
+                title={
+                  group.id === "white"
+                    ? "Unique normal whites, then total ★ across them"
+                    : undefined
+                }
+              >
                 {heading}
               </summary>
               {body}
@@ -88,9 +94,7 @@ function SparkBoard({
 
         return (
           <div key={group.id} className={styles.group}>
-            <p className={styles.groupLabel} title="Unique sparks in this group, then total ★ across them">
-              {heading}
-            </p>
+            <p className={styles.groupLabel}>{heading}</p>
             {body}
           </div>
         );
