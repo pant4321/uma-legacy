@@ -33,7 +33,7 @@ function SparkPills({ sparks }: { sparks: Spark[] }) {
   if (sparks.length === 0) return null;
   return (
     <ul className={styles.sparks}>
-      {sparks.slice(0, 16).map((spark) => (
+      {sparks.map((spark) => (
         <li
           key={`${spark.slot}-${spark.factorId}-${spark.name}`}
           className={`${styles.pill} ${styles[sparkColor(spark.type)]}`}
@@ -107,28 +107,6 @@ export function HorseCard({ veteran, focus, onFocus }: Props) {
               </span>
             ))}
           </p>
-          <div className={styles.tree}>
-            {parents.gp1 ? (
-              <div className={styles.treeNode}>
-                <UmaIcon cardId={parents.gp1.cardId} name={parents.gp1.name} size="sm" />
-                <div>
-                  <p className={styles.treeLabel}>Grandparent 1</p>
-                  <p>{parents.gp1.name}</p>
-                  <SparkPills sparks={parents.gp1.sparks} />
-                </div>
-              </div>
-            ) : null}
-            {parents.gp2 ? (
-              <div className={styles.treeNode}>
-                <UmaIcon cardId={parents.gp2.cardId} name={parents.gp2.name} size="sm" />
-                <div>
-                  <p className={styles.treeLabel}>Grandparent 2</p>
-                  <p>{parents.gp2.name}</p>
-                  <SparkPills sparks={parents.gp2.sparks} />
-                </div>
-              </div>
-            ) : null}
-          </div>
           <ul className={styles.skills}>
             {veteran.skills.map((skill) => (
               <li key={skill.id}>{skill.name}</li>
