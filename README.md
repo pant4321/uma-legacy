@@ -1,16 +1,20 @@
 # Uma Legacy
 
-A GitHub Pages app for searching your own Uma Musume veterans. Upload a `data.json` dump from [UmaExtractor](https://github.com/xancia/UmaExtractor), then filter by sparks the way [uma.moe/database](https://uma.moe/database) does.
+Search your own Uma Musume veterans in the browser. Export a `data.json` dump with [UmaExtractor](https://github.com/xancia/UmaExtractor), then drop it on this page.
 
-The dump stays in this browser (IndexedDB). Nothing is uploaded to a server.
+UmaExtractor needs to run while the game is on **Enhance → List** (Veteran List). The dump stays in this browser (IndexedDB). Nothing is uploaded to a server.
 
-## Use it
+## What it does
 
-1. Open the game on **Enhance → List** (Veteran List).
-2. Run UmaExtractor and grab `data.json`.
-3. Open this page, drop the file in, and filter.
+- Load your extractor dump (file, drop, or paste)
+- Filter sparks in two columns:
+  - **All** — the spark can sit on the main parent or either grandparent
+  - **Main Parent** — the spark must sit on the veteran herself
+- Click **Add** under a color to insert a search box and star slider, then pick the factor
+- Search by name, skill, spark, or parent, and sort the results
+- Keep the last dump on this device so you can come back later
 
-Blue and pink chips cycle 1★ → 2★ → 3★. Turn on **Advanced slot targeting** to require a spark on self, parent 1, parent 2, or grandparents instead of anywhere in the family.
+Live site: https://pant4321.github.io/uma-legacy/
 
 ## Develop
 

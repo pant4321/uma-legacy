@@ -1,15 +1,13 @@
 import { useState } from "react";
-import type { AptitudeKey, Spark, SparkFocus, Veteran } from "../types";
+import type { AptitudeKey, Spark, Veteran } from "../types";
 import { APTITUDE_LETTERS } from "../types";
-import { parentsOf, sparksForFocus } from "../lib/filter";
+import { lineageSparks, parentsOf } from "../lib/filter";
 import { sparkColor } from "../lib/sparks";
 import { UmaIcon } from "./UmaIcon";
 import styles from "./HorseCard.module.css";
 
 type Props = {
   veteran: Veteran;
-  focus: SparkFocus;
-  onFocus: (focus: SparkFocus) => void;
 };
 
 const APT_ORDER: { key: AptitudeKey; label: string }[] = [
@@ -45,10 +43,10 @@ function SparkPills({ sparks }: { sparks: Spark[] }) {
   );
 }
 
-export function HorseCard({ veteran, focus, onFocus }: Props) {
+export function HorseCard({ veteran }: Props) {
   const [open, setOpen] = useState(false);
   const parents = parentsOf(veteran);
-  const shownSparks = sparksForFocus(veteran, focus);
+  const shownSparks = lineageSparks(veteran);
 
   return (
     <article className={`${styles.card} ${open ? styles.open : ""}`}>
@@ -72,30 +70,22 @@ export function HorseCard({ veteran, focus, onFocus }: Props) {
       </button>
       <div className={styles.parents}>
         {parents.gp1 ? (
-          <button
-            type="button"
-            className={`${styles.parent} ${focus === "gp1" ? styles.parentOn : ""}`}
-            onClick={() => onFocus("gp1")}
-          >
+          <div className={styles.parent}>
             <UmaIcon cardId={parents.gp1.cardId} name={parents.gp1.name} size="sm" />
             <span>
               <span className={styles.parentLabel}>GP 1</span>
               {parents.gp1.name}
             </span>
-          </button>
+          </div>
         ) : null}
         {parents.gp2 ? (
-          <button
-            type="button"
-            className={`${styles.parent} ${focus === "gp2" ? styles.parentOn : ""}`}
-            onClick={() => onFocus("gp2")}
-          >
+          <div className={styles.parent}>
             <UmaIcon cardId={parents.gp2.cardId} name={parents.gp2.name} size="sm" />
             <span>
               <span className={styles.parentLabel}>GP 2</span>
               {parents.gp2.name}
             </span>
-          </button>
+          </div>
         ) : null}
       </div>
       {open ? (

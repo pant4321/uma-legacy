@@ -74,17 +74,25 @@ export function allCharacters(): { charaId: number; name: string }[] {
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-export function uniqueFactorsByType(type: number): { name: string; type: number }[] {
+export type FactorOption = { name: string; type: number };
+
+export function uniqueFactorsByTypes(types: number[]): FactorOption[] {
+  const wanted = new Set(types);
   const seen = new Set<string>();
-  const rows: { name: string; type: number }[] = [];
+  const rows: FactorOption[] = [];
   for (const factor of factorList) {
-    if (factor.type !== type) continue;
-    if (seen.has(factor.name)) continue;
-    seen.add(factor.name);
+    if (!wanted.has(factor.type)) continue;
+    const key = `${factor.type}:${factor.name}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
     rows.push({ name: factor.name, type: factor.type });
   }
   rows.sort((a, b) => a.name.localeCompare(b.name));
   return rows;
+}
+
+export function uniqueFactorsByType(type: number): FactorOption[] {
+  return uniqueFactorsByTypes([type]);
 }
 
 export function characterIconUrl(cardId: number): string {

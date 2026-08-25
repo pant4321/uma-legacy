@@ -34,20 +34,3 @@
   font: inherit;
   cursor: pointer;
 }
-
-.body {
-  display: grid;
-}
-
-@media (min-width: 900px) {
-  .body {
-    grid-template-columns: 280px 1fr;
-    align-items: start;
-  }
-}
-
-@media (max-width: 899px) {
-  .body {
-    grid-template-columns: 1fr;
-  }
-}

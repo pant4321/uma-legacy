@@ -8,10 +8,35 @@
   margin-bottom: 0.75rem;
 }
 
+.search {
+  display: grid;
+  gap: 0.3rem;
+  color: #9aa6b5;
+  font-size: 0.78rem;
+}
+
+.search input,
+.search select {
+  width: 100%;
+  border: 1px solid #2c3646;
+  border-radius: 8px;
+  background: #0d1219;
+  color: #e8edf4;
+  padding: 0.45rem 0.55rem;
+  font: inherit;
+}
+
 .count {
   margin: 0;
   color: #9aa6b5;
   font-size: 0.85rem;
+}
+
+@media (min-width: 720px) {
+  .head {
+    grid-template-columns: 1fr 220px auto;
+    align-items: end;
+  }
 }
 
 .grid {

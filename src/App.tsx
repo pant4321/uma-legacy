@@ -69,26 +69,25 @@ export default function App() {
           {menuOpen ? "Hide filters" : "Show filters"}
         </button>
       </header>
-      <div className={styles.body}>
-        {menuOpen ? (
-          <FilterPanel
-            veterans={veterans}
-            filter={filter}
-            onChange={setFilter}
-            onClearRoster={() => {
-              setVeterans(null);
-              setFilter(emptyFilter());
-              void clearRoster();
-            }}
-          />
-        ) : null}
-        <HorseGrid
-          veterans={filtered}
-          total={veterans.length}
-          focus={filter.focus}
-          onFocus={(focus) => setFilter({ ...filter, focus })}
+      {menuOpen ? (
+        <FilterPanel
+          filter={filter}
+          onChange={setFilter}
+          onClearRoster={() => {
+            setVeterans(null);
+            setFilter(emptyFilter());
+            void clearRoster();
+          }}
         />
-      </div>
+      ) : null}
+      <HorseGrid
+        veterans={filtered}
+        total={veterans.length}
+        query={filter.query}
+        sort={filter.sort}
+        onQuery={(query) => setFilter({ ...filter, query })}
+        onSort={(sort) => setFilter({ ...filter, sort })}
+      />
     </div>
   );
 }

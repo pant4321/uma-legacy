@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { SparkFocus, Veteran } from "../types";
-import { FocusTabs } from "./FocusTabs";
+import type { SortKey, Veteran } from "../types";
 import { HorseCard } from "./HorseCard";
 import styles from "./HorseGrid.module.css";
 
@@ -9,11 +8,13 @@ const PAGE = 30;
 type Props = {
   veterans: Veteran[];
   total: number;
-  focus: SparkFocus;
-  onFocus: (focus: SparkFocus) => void;
+  query: string;
+  sort: SortKey;
+  onQuery: (query: string) => void;
+  onSort: (sort: SortKey) => void;
 };
 
-export function HorseGrid({ veterans, total, focus, onFocus }: Props) {
+export function HorseGrid({ veterans, total, query, sort, onQuery, onSort }: Props) {
   const [shown, setShown] = useState(PAGE);
   const sentinel = useRef<HTMLDivElement>(null);
 
@@ -38,17 +39,42 @@ export function HorseGrid({ veterans, total, focus, onFocus }: Props) {
   return (
     <section className={styles.wrap}>
       <div className={styles.head}>
+        <label className={styles.search}>
+          Search
+          <input
+            value={query}
+            placeholder="Name, skill, spark, parent"
+            onChange={(event) => onQuery(event.target.value)}
+          />
+        </label>
+        <label className={styles.search}>
+          Sort
+          <select
+            value={sort}
+            onChange={(event) => onSort(event.target.value as SortKey)}
+          >
+            <option value="rankScore">Rank score</option>
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+            <option value="whiteCount">White sparks</option>
+            <option value="g1">Win saddles</option>
+            <option value="speed">Speed</option>
+            <option value="stamina">Stamina</option>
+            <option value="power">Power</option>
+            <option value="guts">Guts</option>
+            <option value="wit">Wit</option>
+          </select>
+        </label>
         <p className={styles.count}>
           {veterans.length} of {total} veterans
         </p>
-        <FocusTabs value={focus} onChange={onFocus} />
       </div>
       {visible.length === 0 ? (
         <p className={styles.empty}>No veterans match those filters.</p>
       ) : (
         <div className={styles.grid}>
           {visible.map((veteran) => (
-            <HorseCard key={veteran.id} veteran={veteran} focus={focus} onFocus={onFocus} />
+            <HorseCard key={veteran.id} veteran={veteran} />
           ))}
         </div>
       )}

@@ -1,53 +1,34 @@
-import type {
-  FilterState,
-  NodeFilter,
-  NodeKey,
-  Spark,
-  SparkFocus,
-  SparkRule,
-  SparkSlot,
-  Veteran,
-} from "../types";
-import { FOCUS_SLOTS } from "../types";
+import type { FilterState, NodeFilter, Spark, SparkRule, SparkSlot, Veteran } from "../types";
+import { MAIN_SLOTS, TREE_SLOTS } from "../types";
 
 export function emptyNode(): NodeFilter {
-  return { charaId: null, sparks: [] };
+  return { sparks: [] };
 }
 
 export function emptyFilter(): FilterState {
   return {
     query: "",
-    focus: "all",
     tree: emptyNode(),
     main: emptyNode(),
-    gp1: emptyNode(),
-    gp2: emptyNode(),
-    minRankScore: null,
-    minStats: {
-      speed: null,
-      stamina: null,
-      power: null,
-      guts: null,
-      wit: null,
-    },
-    minAptitudes: {},
     sort: "rankScore",
   };
 }
 
-export function editingNode(focus: SparkFocus): NodeKey {
-  return focus === "all" ? "tree" : focus;
+export function newSparkRule(type: SparkRule["type"]): SparkRule {
+  return {
+    id: crypto.randomUUID(),
+    type,
+    kind: "",
+    minStars: 1,
+  };
 }
 
 function sortSparks(sparks: Spark[]): Spark[] {
   return [...sparks].sort((a, b) => a.type - b.type || b.stars - a.stars || a.name.localeCompare(b.name));
 }
 
-export function sparksForFocus(veteran: Veteran, focus: SparkFocus): Spark[] {
-  const slots = FOCUS_SLOTS[focus];
-  const raw = veteran.sparks.filter((spark) => slots.includes(spark.slot));
-  if (focus !== "all") return sortSparks(raw);
-
+export function lineageSparks(veteran: Veteran): Spark[] {
+  const raw = veteran.sparks.filter((spark) => TREE_SLOTS.includes(spark.slot));
   const best = new Map<string, Spark>();
   for (const spark of raw) {
     const key = `${spark.type}:${spark.name}`;
@@ -57,6 +38,11 @@ export function sparksForFocus(veteran: Veteran, focus: SparkFocus): Spark[] {
   return sortSparks([...best.values()]);
 }
 
+export function sparksForFocus(veteran: Veteran, focus: "all" | "main"): Spark[] {
+  if (focus === "all") return lineageSparks(veteran);
+  return sortSparks(veteran.sparks.filter((spark) => MAIN_SLOTS.includes(spark.slot)));
+}
+
 export function parentsOf(veteran: Veteran) {
   return {
     gp1: veteran.family.find((row) => row.slot === "parent1") ?? null,
@@ -64,20 +50,9 @@ export function parentsOf(veteran: Veteran) {
   };
 }
 
-function charaOnSlots(veteran: Veteran, slots: SparkSlot[], charaId: number): boolean {
-  for (const slot of slots) {
-    if (slot === "self" && veteran.charaId === charaId) return true;
-    if (veteran.family.some((member) => member.slot === slot && member.charaId === charaId)) {
-      return true;
-    }
-  }
-  return false;
-}
-
 function nodeMatches(veteran: Veteran, node: NodeFilter, slots: SparkSlot[]): boolean {
-  if (node.charaId !== null && !charaOnSlots(veteran, slots, node.charaId)) return false;
   for (const rule of node.sparks) {
-    if (rule.minStars <= 0) continue;
+    if (!rule.kind || rule.minStars <= 0) continue;
     const hit = veteran.sparks.some(
       (spark) =>
         slots.includes(spark.slot) &&
@@ -96,9 +71,7 @@ function matchesQuery(veteran: Veteran, query: string): boolean {
   if (veteran.name.toLowerCase().includes(q)) return true;
   if (veteran.title.toLowerCase().includes(q)) return true;
   if (veteran.skills.some((skill) => skill.name.toLowerCase().includes(q))) return true;
-  const lineage = veteran.sparks.filter((spark) =>
-    FOCUS_SLOTS.all.includes(spark.slot),
-  );
+  const lineage = veteran.sparks.filter((spark) => TREE_SLOTS.includes(spark.slot));
   if (lineage.some((spark) => spark.name.toLowerCase().includes(q))) return true;
   const parents = parentsOf(veteran);
   if (parents.gp1?.name.toLowerCase().includes(q)) return true;
@@ -108,24 +81,8 @@ function matchesQuery(veteran: Veteran, query: string): boolean {
 
 export function veteranMatches(veteran: Veteran, filter: FilterState): boolean {
   if (!matchesQuery(veteran, filter.query)) return false;
-  if (filter.minRankScore !== null && veteran.rankScore < filter.minRankScore) return false;
-
-  for (const [stat, min] of Object.entries(filter.minStats)) {
-    if (min === null) continue;
-    const value = veteran[stat as "speed" | "stamina" | "power" | "guts" | "wit"];
-    if (value < min) return false;
-  }
-
-  for (const [key, min] of Object.entries(filter.minAptitudes)) {
-    if (min === undefined) continue;
-    if (veteran.aptitudes[key as keyof Veteran["aptitudes"]] < min) return false;
-  }
-
-  if (!nodeMatches(veteran, filter.tree, FOCUS_SLOTS.all)) return false;
-  if (!nodeMatches(veteran, filter.main, FOCUS_SLOTS.main)) return false;
-  if (!nodeMatches(veteran, filter.gp1, FOCUS_SLOTS.gp1)) return false;
-  if (!nodeMatches(veteran, filter.gp2, FOCUS_SLOTS.gp2)) return false;
-
+  if (!nodeMatches(veteran, filter.tree, TREE_SLOTS)) return false;
+  if (!nodeMatches(veteran, filter.main, MAIN_SLOTS)) return false;
   return true;
 }
 
@@ -163,17 +120,10 @@ export function applyFilter(veterans: Veteran[], filter: FilterState): Veteran[]
   });
 }
 
-export function upsertSparkRule(sparks: SparkRule[], type: SparkRule["type"], kind: string, minStars: number): SparkRule[] {
-  const next = sparks.filter((rule) => !(rule.type === type && rule.kind === kind));
-  if (minStars > 0) next.push({ type, kind, minStars });
-  return next;
+export function updateSparkRule(sparks: SparkRule[], id: string, patch: Partial<SparkRule>): SparkRule[] {
+  return sparks.map((rule) => (rule.id === id ? { ...rule, ...patch } : rule));
 }
 
-export function cycleStars(current: number): number {
-  if (current >= 3) return 0;
-  return current + 1;
-}
-
-export function nodeHasRules(node: NodeFilter): boolean {
-  return node.charaId !== null || node.sparks.some((rule) => rule.minStars > 0);
+export function removeSparkRule(sparks: SparkRule[], id: string): SparkRule[] {
+  return sparks.filter((rule) => rule.id !== id);
 }

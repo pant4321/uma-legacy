@@ -1,0 +1,138 @@
+.group {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.title {
+  margin: 0;
+  color: #c5cdd8;
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.row {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.45rem 0.5rem 0.55rem;
+  border: 1px solid #2c3646;
+  border-radius: 8px;
+  background: #0d1219;
+}
+
+.search {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.3rem;
+  position: relative;
+}
+
+.search input {
+  width: 100%;
+  border: 1px solid #2c3646;
+  border-radius: 6px;
+  background: #080c12;
+  color: #e8edf4;
+  padding: 0.4rem 0.5rem;
+  font: inherit;
+  font-size: 0.82rem;
+}
+
+.remove {
+  border: 0;
+  background: transparent;
+  color: #8b96a6;
+  font: inherit;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0.25rem;
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 1.6rem;
+  z-index: 5;
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem;
+  border: 1px solid #2c3646;
+  border-radius: 8px;
+  background: #10151d;
+  max-height: 200px;
+  overflow: auto;
+}
+
+.menu button {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  color: #e8edf4;
+  padding: 0.35rem 0.45rem;
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.menu button:hover {
+  background: #1b2433;
+}
+
+.empty {
+  padding: 0.4rem;
+  color: #7d8a9a;
+  font-size: 0.78rem;
+}
+
+.sliderBlock {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.slider {
+  width: 100%;
+  accent-color: #d7b56d;
+  cursor: pointer;
+}
+
+.starMarks {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  font-size: 0.7rem;
+  color: #6f7b8a;
+}
+
+.starOn {
+  color: #d7b56d;
+}
+
+.starOff {
+  color: #3d4654;
+}
+
+.add {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  border: 1px dashed #3d4c63;
+  border-radius: 8px;
+  background: transparent;
+  color: #9aa6b5;
+  padding: 0.4rem 0.55rem;
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.add:hover {
+  border-color: #6e8fb8;
+  color: #d5dce6;
+  background: #121a26;
+}
