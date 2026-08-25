@@ -61,9 +61,9 @@ function FamilyStrip({ family }: { family: FamilyMember[] }) {
 }
 
 const TREE_SLOTS: { slot: FamilyMember["slot"]; label: string }[] = [
+  { slot: "parent1", label: "Parent 1" },
   { slot: "gp11", label: "GP 1-1" },
   { slot: "gp12", label: "GP 1-2" },
-  { slot: "parent1", label: "Parent 1" },
   { slot: "parent2", label: "Parent 2" },
   { slot: "gp21", label: "GP 2-1" },
   { slot: "gp22", label: "GP 2-2" },
