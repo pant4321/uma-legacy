@@ -1,0 +1,162 @@
+.card {
+  border: 1px solid #243044;
+  border-radius: 12px;
+  background: #151c27;
+  overflow: hidden;
+}
+
+.main {
+  display: flex;
+  gap: 0.85rem;
+  width: 100%;
+  padding: 0.85rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.meta {
+  min-width: 0;
+  flex: 1;
+}
+
+.titleRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  align-items: baseline;
+}
+
+.titleRow h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.rank {
+  color: #d7b56d;
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+}
+
+.subtitle {
+  margin: 0.15rem 0 0;
+  color: #8b96a6;
+  font-size: 0.78rem;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.7rem;
+  margin: 0.45rem 0 0;
+  color: #c5cdd8;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.sparks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pill {
+  border-radius: 999px;
+  padding: 0.12rem 0.45rem;
+  font-size: 0.7rem;
+}
+
+.blue {
+  background: #17345a;
+  color: #cfe4fb;
+}
+
+.pink {
+  background: #3a1c31;
+  color: #f7d3e8;
+}
+
+.green {
+  background: #1c3a24;
+  color: #c8efcf;
+}
+
+.white {
+  background: #2a3038;
+  color: #ece7dc;
+}
+
+.gold {
+  background: #3a3018;
+  color: #f3d27a;
+}
+
+.parents {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.55rem;
+}
+
+.parent {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+  color: #9aa6b5;
+  font-size: 0.75rem;
+}
+
+.details {
+  padding: 0 0.85rem 0.9rem;
+  border-top: 1px solid #243044;
+}
+
+.apt {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.7rem;
+  color: #9aa6b5;
+  font-size: 0.75rem;
+}
+
+.tree {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.treeNode {
+  display: flex;
+  gap: 0.5rem;
+  align-items: start;
+}
+
+.treeNode p {
+  margin: 0;
+}
+
+.treeLabel {
+  color: #8b96a6;
+  font-size: 0.7rem;
+}
+
+.skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.7rem 0 0;
+  padding: 0;
+  list-style: none;
+  color: #c5cdd8;
+  font-size: 0.75rem;
+}
+
+.skills li {
+  background: #1c2430;
+  border-radius: 6px;
+  padding: 0.15rem 0.4rem;
+}

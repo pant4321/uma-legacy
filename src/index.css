@@ -1,0 +1,26 @@
+:root {
+  color-scheme: dark;
+  font-family: "Segoe UI", "Hiragino Sans", system-ui, sans-serif;
+  line-height: 1.4;
+  background: #0c1016;
+  color: #e8edf4;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+}

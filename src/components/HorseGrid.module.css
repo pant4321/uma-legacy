@@ -1,0 +1,28 @@
+.wrap {
+  padding: 1rem 1rem 3rem;
+}
+
+.count {
+  margin: 0 0 0.75rem;
+  color: #9aa6b5;
+  font-size: 0.85rem;
+}
+
+.grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.empty {
+  color: #9aa6b5;
+}
+
+.sentinel {
+  height: 1px;
+}
+
+@media (min-width: 1100px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

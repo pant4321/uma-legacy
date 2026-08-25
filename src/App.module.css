@@ -1,0 +1,53 @@
+.boot {
+  padding: 3rem 1.25rem;
+  color: #9aa6b5;
+}
+
+.shell {
+  min-height: 100vh;
+}
+
+.bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #243044;
+  background: #121821;
+}
+
+.kicker {
+  margin: 0;
+  color: #8bb4e8;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.menuBtn {
+  border: 1px solid #3d4c63;
+  border-radius: 8px;
+  background: transparent;
+  color: #e8edf4;
+  padding: 0.4rem 0.7rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.body {
+  display: grid;
+}
+
+@media (min-width: 900px) {
+  .body {
+    grid-template-columns: 280px 1fr;
+    align-items: start;
+  }
+}
+
+@media (max-width: 899px) {
+  .body {
+    grid-template-columns: 1fr;
+  }
+}

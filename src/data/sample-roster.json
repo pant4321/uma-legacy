@@ -1,0 +1,115 @@
+[
+  {
+    "trained_chara_id": 1,
+    "card_id": 101301,
+    "speed": 820,
+    "stamina": 1210,
+    "power": 640,
+    "guts": 501,
+    "wiz": 880,
+    "rank_score": 18440,
+    "rank": 22,
+    "rarity": 3,
+    "talent_level": 5,
+    "create_time": "2025-09-09 17:00:31",
+    "proper_ground_turf": 8,
+    "proper_ground_dirt": 3,
+    "proper_running_style_nige": 2,
+    "proper_running_style_senko": 7,
+    "proper_running_style_sashi": 4,
+    "proper_running_style_oikomi": 1,
+    "proper_distance_short": 1,
+    "proper_distance_mile": 4,
+    "proper_distance_middle": 8,
+    "proper_distance_long": 7,
+    "win_saddle_id_array": [5, 146, 10],
+    "skill_array": [{ "skill_id": 200331, "level": 1 }],
+    "factor_info_array": [
+      { "factor_id": 203, "level": 0 },
+      { "factor_id": 3303, "level": 0 },
+      { "factor_id": 10130103, "level": 0 }
+    ],
+    "succession_chara_array": [
+      {
+        "position_id": 10,
+        "card_id": 100701,
+        "talent_level": 5,
+        "factor_info_array": [{ "factor_id": 3203, "level": 0 }]
+      },
+      {
+        "position_id": 20,
+        "card_id": 100601,
+        "talent_level": 3,
+        "factor_info_array": [{ "factor_id": 103, "level": 0 }]
+      },
+      {
+        "position_id": 11,
+        "card_id": 101701,
+        "talent_level": 3,
+        "factor_info_array": []
+      },
+      {
+        "position_id": 12,
+        "card_id": 100101,
+        "talent_level": 3,
+        "factor_info_array": []
+      },
+      {
+        "position_id": 21,
+        "card_id": 100801,
+        "talent_level": 3,
+        "factor_info_array": []
+      },
+      {
+        "position_id": 22,
+        "card_id": 100901,
+        "talent_level": 3,
+        "factor_info_array": []
+      }
+    ]
+  },
+  {
+    "trained_chara_id": 2,
+    "card_id": 100601,
+    "speed": 1100,
+    "stamina": 700,
+    "power": 900,
+    "guts": 400,
+    "wiz": 500,
+    "rank_score": 15100,
+    "rank": 18,
+    "rarity": 3,
+    "talent_level": 4,
+    "create_time": "2025-08-01 12:00:00",
+    "proper_ground_turf": 7,
+    "proper_ground_dirt": 6,
+    "proper_running_style_nige": 4,
+    "proper_running_style_senko": 7,
+    "proper_running_style_sashi": 5,
+    "proper_running_style_oikomi": 2,
+    "proper_distance_short": 6,
+    "proper_distance_mile": 8,
+    "proper_distance_middle": 5,
+    "proper_distance_long": 2,
+    "win_saddle_id_array": [4],
+    "skill_array": [{ "skill_id": 200011, "level": 1 }],
+    "factor_info_array": [
+      { "factor_id": 103, "level": 0 },
+      { "factor_id": 3202, "level": 0 }
+    ],
+    "succession_chara_array": [
+      {
+        "position_id": 10,
+        "card_id": 100101,
+        "talent_level": 5,
+        "factor_info_array": [{ "factor_id": 201, "level": 0 }]
+      },
+      {
+        "position_id": 20,
+        "card_id": 101301,
+        "talent_level": 3,
+        "factor_info_array": []
+      }
+    ]
+  }
+]
