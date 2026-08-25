@@ -5,7 +5,6 @@ import {
   sparkChips,
   formatInheritPct,
   formatSparkGroupHeading,
-  groupSparkChips,
 } from "./inherit";
 import { parseDump } from "./parseDump";
 
