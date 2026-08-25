@@ -25,8 +25,7 @@ export function UploadPanel({ error, onText, onLoadSample }: Props) {
         <p className={styles.lede}>
           Upload a dump from{" "}
           <a href="https://github.com/xancia/UmaExtractor">UmaExtractor</a>. See
-          instructions and download in their repo. The file never leaves this
-          browser.
+          instructions and download in their repo.
         </p>
       </header>
 
