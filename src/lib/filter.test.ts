@@ -26,6 +26,34 @@ function node(rules: SparkRule[], groupJoin: JoinMode = "and", join: JoinMode = 
 }
 
 describe("applyFilter", () => {
+  it("matches Any blue when some blue kind meets the star minimum", () => {
+    const filter = emptyFilter();
+    filter.main = node([rule(1, "Any", 3)]);
+    expect(applyFilter(veterans, filter).map((v) => v.name)).toEqual(["Mejiro McQueen"]);
+
+    const weak = structuredClone(veterans[0]);
+    weak.sparks = weak.sparks.map((spark) =>
+      spark.type === 1 && spark.slot === "self" ? { ...spark, stars: 2 } : spark,
+    );
+    expect(applyFilter([weak], filter)).toHaveLength(0);
+  });
+
+  it("uses the strongest blue kind for Any across All slots", () => {
+    const stacked = structuredClone(veterans[0]);
+    stacked.sparks = stacked.sparks.filter((spark) => spark.type !== 1);
+    stacked.sparks.push(
+      { factorId: 101, name: "Speed", type: 1, stars: 2, slot: "self" },
+      { factorId: 101, name: "Speed", type: 1, stars: 2, slot: "parent1" },
+      { factorId: 203, name: "Stamina", type: 1, stars: 1, slot: "self" },
+    );
+    const filter = emptyFilter();
+    filter.tree = node([rule(1, "Any", 4)]);
+    expect(applyFilter([stacked], filter)).toHaveLength(1);
+
+    filter.tree = node([rule(1, "Any", 5)]);
+    expect(applyFilter([stacked], filter)).toHaveLength(0);
+  });
+
   it("finds 3-star Stamina plus 3-star Medium on the main parent", () => {
     const filter = emptyFilter();
     filter.main = node([rule(1, "Stamina", 3), rule(2, "Medium", 3)]);

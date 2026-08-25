@@ -11,6 +11,7 @@ import type {
   Veteran,
 } from "../types";
 import { FOCUS_SLOTS, MAIN_SLOTS, SORT_KEYS, TREE_SLOTS } from "../types";
+import { ANY_FACTOR } from "./sparks";
 
 function isNormalWhiteSpark(type: number): boolean {
   return type === 4;
@@ -84,6 +85,17 @@ export function sparkTotal(
   kind: string,
   slots: SparkSlot[],
 ): number {
+  if (kind === ANY_FACTOR) {
+    const byName = new Map<string, number>();
+    for (const spark of veteran.sparks) {
+      if (!slots.includes(spark.slot) || spark.type !== type) continue;
+      byName.set(spark.name, (byName.get(spark.name) ?? 0) + spark.stars);
+    }
+    let best = 0;
+    for (const total of byName.values()) best = Math.max(best, total);
+    return best;
+  }
+
   let total = 0;
   for (const spark of veteran.sparks) {
     if (slots.includes(spark.slot) && spark.type === type && spark.name === kind) {

@@ -8,7 +8,7 @@ import {
   removeGroup,
   updateGroup,
 } from "../lib/filter";
-import { BLUE_KINDS, PINK_KINDS } from "../lib/sparks";
+import { BLUE_KINDS, PINK_KINDS, ANY_FACTOR } from "../lib/sparks";
 import type { FilterState, JoinMode, NodeFilter, NodeKey, SparkGroup } from "../types";
 import { FactorGroup } from "./FactorGroup";
 import { PresetBar } from "./PresetBar";
@@ -20,7 +20,10 @@ type Props = {
   onClearRoster: () => void;
 };
 
-const BLUE_CATALOG: FactorOption[] = BLUE_KINDS.map((name) => ({ name, type: 1 }));
+const BLUE_CATALOG: FactorOption[] = [
+  { name: ANY_FACTOR, type: 1 },
+  ...BLUE_KINDS.map((name) => ({ name, type: 1 })),
+];
 const PINK_CATALOG: FactorOption[] = PINK_KINDS.map((row) => ({ name: row.kind, type: 2 }));
 
 function JoinToggle({
@@ -94,7 +97,7 @@ function Combination({
       <FactorGroup
         title="Blue Factors (Stats)"
         addLabel="Add Blue Factor"
-        placeholder="Find blue factors"
+        placeholder="Find blue factors (or Any)"
         types={[1]}
         catalog={BLUE_CATALOG}
         sparks={group.sparks}

@@ -24,6 +24,9 @@ const PINK_KIND: Record<number, string> = {
 
 export const BLUE_KINDS = ["Speed", "Stamina", "Power", "Guts", "Wit"] as const;
 
+/** Sentinel kind: match the strongest spark of that type on the chosen slots. */
+export const ANY_FACTOR = "Any";
+
 export const PINK_KINDS = [
   { kind: "Turf", label: "Turf" },
   { kind: "Dirt", label: "Dirt" },

@@ -144,6 +144,8 @@ export function formatSparkGroupHeading(
   return label;
 }
 
+import { ANY_FACTOR } from "./sparks";
+
 export function matchedSparkKeys(filter: {
   tree: { groups: { sparks: { type: number; kind: string }[] }[] };
   main: { groups: { sparks: { type: number; kind: string }[] }[] };
@@ -152,7 +154,8 @@ export function matchedSparkKeys(filter: {
   for (const node of [filter.tree, filter.main]) {
     for (const group of node.groups) {
       for (const rule of group.sparks) {
-        if (rule.kind) keys.add(`${rule.type}:${rule.kind}`);
+        if (!rule.kind || rule.kind === ANY_FACTOR) continue;
+        keys.add(`${rule.type}:${rule.kind}`);
       }
     }
   }
