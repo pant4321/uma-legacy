@@ -1,12 +1,15 @@
 import { useState } from "react";
-import type { AptitudeKey, FamilyMember, Spark, Veteran } from "../types";
+import type { AptitudeKey, Spark, SparkFocus, Veteran } from "../types";
 import { APTITUDE_LETTERS } from "../types";
+import { parentsOf, sparksForFocus } from "../lib/filter";
 import { sparkColor } from "../lib/sparks";
 import { UmaIcon } from "./UmaIcon";
 import styles from "./HorseCard.module.css";
 
 type Props = {
   veteran: Veteran;
+  focus: SparkFocus;
+  onFocus: (focus: SparkFocus) => void;
 };
 
 const APT_ORDER: { key: AptitudeKey; label: string }[] = [
@@ -27,15 +30,12 @@ function letter(value: number): string {
 }
 
 function SparkPills({ sparks }: { sparks: Spark[] }) {
-  const shown = [...sparks]
-    .sort((a, b) => a.type - b.type || b.stars - a.stars)
-    .filter((spark) => spark.slot === "self")
-    .slice(0, 12);
+  if (sparks.length === 0) return null;
   return (
     <ul className={styles.sparks}>
-      {shown.map((spark) => (
+      {sparks.slice(0, 16).map((spark) => (
         <li
-          key={`${spark.slot}-${spark.factorId}`}
+          key={`${spark.slot}-${spark.factorId}-${spark.name}`}
           className={`${styles.pill} ${styles[sparkColor(spark.type)]}`}
         >
           {spark.name} {"★".repeat(spark.stars)}
@@ -45,35 +45,13 @@ function SparkPills({ sparks }: { sparks: Spark[] }) {
   );
 }
 
-function FamilyStrip({ family }: { family: FamilyMember[] }) {
-  const parents = family.filter((row) => row.slot === "parent1" || row.slot === "parent2");
-  if (parents.length === 0) return null;
-  return (
-    <div className={styles.parents}>
-      {parents.map((row) => (
-        <span key={row.slot} className={styles.parent}>
-          <UmaIcon cardId={row.cardId} name={row.name} size="sm" />
-          {row.name}
-        </span>
-      ))}
-    </div>
-  );
-}
-
-const TREE_SLOTS: { slot: FamilyMember["slot"]; label: string }[] = [
-  { slot: "parent1", label: "Parent 1" },
-  { slot: "gp11", label: "GP 1-1" },
-  { slot: "gp12", label: "GP 1-2" },
-  { slot: "parent2", label: "Parent 2" },
-  { slot: "gp21", label: "GP 2-1" },
-  { slot: "gp22", label: "GP 2-2" },
-];
-
-export function HorseCard({ veteran }: Props) {
+export function HorseCard({ veteran, focus, onFocus }: Props) {
   const [open, setOpen] = useState(false);
+  const parents = parentsOf(veteran);
+  const shownSparks = sparksForFocus(veteran, focus);
 
   return (
-    <article className={styles.card}>
+    <article className={`${styles.card} ${open ? styles.open : ""}`}>
       <button type="button" className={styles.main} onClick={() => setOpen((value) => !value)}>
         <UmaIcon cardId={veteran.cardId} name={veteran.name} size="lg" />
         <div className={styles.meta}>
@@ -89,10 +67,37 @@ export function HorseCard({ veteran }: Props) {
             <span>Gut {veteran.guts}</span>
             <span>Wit {veteran.wit}</span>
           </p>
-          <SparkPills sparks={veteran.sparks} />
-          <FamilyStrip family={veteran.family} />
+          <SparkPills sparks={shownSparks} />
         </div>
       </button>
+      <div className={styles.parents}>
+        {parents.gp1 ? (
+          <button
+            type="button"
+            className={`${styles.parent} ${focus === "gp1" ? styles.parentOn : ""}`}
+            onClick={() => onFocus("gp1")}
+          >
+            <UmaIcon cardId={parents.gp1.cardId} name={parents.gp1.name} size="sm" />
+            <span>
+              <span className={styles.parentLabel}>GP 1</span>
+              {parents.gp1.name}
+            </span>
+          </button>
+        ) : null}
+        {parents.gp2 ? (
+          <button
+            type="button"
+            className={`${styles.parent} ${focus === "gp2" ? styles.parentOn : ""}`}
+            onClick={() => onFocus("gp2")}
+          >
+            <UmaIcon cardId={parents.gp2.cardId} name={parents.gp2.name} size="sm" />
+            <span>
+              <span className={styles.parentLabel}>GP 2</span>
+              {parents.gp2.name}
+            </span>
+          </button>
+        ) : null}
+      </div>
       {open ? (
         <div className={styles.details}>
           <p className={styles.apt}>
@@ -103,29 +108,26 @@ export function HorseCard({ veteran }: Props) {
             ))}
           </p>
           <div className={styles.tree}>
-            {TREE_SLOTS.map((row) => {
-              const member = veteran.family.find((item) => item.slot === row.slot);
-              if (!member) return null;
-              return (
-                <div key={row.slot} className={styles.treeNode}>
-                  <UmaIcon cardId={member.cardId} name={member.name} size="sm" />
-                  <div>
-                    <p className={styles.treeLabel}>{row.label}</p>
-                    <p>{member.name}</p>
-                    <ul className={styles.sparks}>
-                      {member.sparks.map((spark) => (
-                        <li
-                          key={spark.factorId}
-                          className={`${styles.pill} ${styles[sparkColor(spark.type)]}`}
-                        >
-                          {spark.name} {"★".repeat(spark.stars)}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+            {parents.gp1 ? (
+              <div className={styles.treeNode}>
+                <UmaIcon cardId={parents.gp1.cardId} name={parents.gp1.name} size="sm" />
+                <div>
+                  <p className={styles.treeLabel}>Grandparent 1</p>
+                  <p>{parents.gp1.name}</p>
+                  <SparkPills sparks={parents.gp1.sparks} />
                 </div>
-              );
-            })}
+              </div>
+            ) : null}
+            {parents.gp2 ? (
+              <div className={styles.treeNode}>
+                <UmaIcon cardId={parents.gp2.cardId} name={parents.gp2.name} size="sm" />
+                <div>
+                  <p className={styles.treeLabel}>Grandparent 2</p>
+                  <p>{parents.gp2.name}</p>
+                  <SparkPills sparks={parents.gp2.sparks} />
+                </div>
+              </div>
+            ) : null}
           </div>
           <ul className={styles.skills}>
             {veteran.skills.map((skill) => (

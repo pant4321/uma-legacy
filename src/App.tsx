@@ -82,7 +82,12 @@ export default function App() {
             }}
           />
         ) : null}
-        <HorseGrid veterans={filtered} total={veterans.length} />
+        <HorseGrid
+          veterans={filtered}
+          total={veterans.length}
+          focus={filter.focus}
+          onFocus={(focus) => setFilter({ ...filter, focus })}
+        />
       </div>
     </div>
   );

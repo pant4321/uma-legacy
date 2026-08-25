@@ -2,8 +2,14 @@
   padding: 1rem 1rem 3rem;
 }
 
+.head {
+  display: grid;
+  gap: 0.55rem;
+  margin-bottom: 0.75rem;
+}
+
 .count {
-  margin: 0 0 0.75rem;
+  margin: 0;
   color: #9aa6b5;
   font-size: 0.85rem;
 }

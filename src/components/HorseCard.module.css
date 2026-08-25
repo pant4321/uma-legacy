@@ -99,16 +99,32 @@
 .parents {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.6rem;
-  margin-top: 0.55rem;
+  gap: 0.45rem;
+  padding: 0 0.85rem 0.75rem;
 }
 
 .parent {
   display: inline-flex;
   gap: 0.35rem;
   align-items: center;
+  border: 1px solid #2c3646;
+  border-radius: 8px;
+  background: #10151d;
   color: #9aa6b5;
   font-size: 0.75rem;
+  padding: 0.2rem 0.45rem 0.2rem 0.2rem;
+  cursor: pointer;
+}
+
+.parentOn {
+  border-color: #d7b56d;
+  color: #f3d27a;
+}
+
+.parentLabel {
+  display: block;
+  font-size: 0.65rem;
+  color: #8b96a6;
 }
 
 .details {

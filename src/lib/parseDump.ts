@@ -1,4 +1,5 @@
 import type { Aptitudes, FamilyMember, Skill, Veteran } from "../types";
+import { FOCUS_SLOTS } from "../types";
 import { characterName, displayName, skillName } from "./names";
 import { charaIdFromCard, decodeFactorList, positionToSlot } from "./sparks";
 
@@ -128,7 +129,9 @@ export function veteranFromRaw(raw: unknown, index: number): Veteran | null {
     winSaddleCount: saddles,
     createdAt: created.createdAt,
     createdText: created.createdText,
-    whiteCount: sparks.filter((spark) => spark.type === 4).length,
+    whiteCount: sparks.filter(
+      (spark) => spark.type === 4 && FOCUS_SLOTS.all.includes(spark.slot),
+    ).length,
   };
 }
 

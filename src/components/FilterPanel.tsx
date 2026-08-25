@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
-import type { FilterState, SparkRule, SparkWhere, Veteran } from "../types";
+import type { FilterState, NodeFilter, NodeKey, SparkFocus, SparkRule, Veteran } from "../types";
 import { APTITUDE_LETTERS } from "../types";
-import { cycleStars, emptyFilter, upsertSparkRule } from "../lib/filter";
+import { FocusTabs } from "./FocusTabs";
+import { cycleStars, editingNode, emptyFilter, nodeHasRules, upsertSparkRule } from "../lib/filter";
 import { allCharacters, uniqueFactorsByType } from "../lib/names";
 import { BLUE_KINDS, PINK_KINDS } from "../lib/sparks";
 import styles from "./FilterPanel.module.css";
@@ -12,14 +13,6 @@ type Props = {
   onChange: (next: FilterState) => void;
   onClearRoster: () => void;
 };
-
-const WHERE_OPTIONS: { value: SparkWhere; label: string }[] = [
-  { value: "any", label: "Anywhere" },
-  { value: "self", label: "Self" },
-  { value: "parent1", label: "Parent 1" },
-  { value: "parent2", label: "Parent 2" },
-  { value: "grandparents", label: "Grandparents" },
-];
 
 function starsFor(sparks: SparkRule[], type: SparkRule["type"], kind: string): number {
   return sparks.find((rule) => rule.type === type && rule.kind === kind)?.minStars ?? 0;
@@ -126,20 +119,20 @@ function SparkSearch({
   label,
   type,
   catalog,
-  filter,
-  onChange,
+  sparks,
+  onSparks,
 }: {
   label: string;
   type: 3 | 4;
   catalog: { name: string; type: number }[];
-  filter: FilterState;
-  onChange: (next: FilterState) => void;
+  sparks: SparkRule[];
+  onSparks: (next: SparkRule[]) => void;
 }) {
   const [query, setQuery] = useState("");
   const hits = catalog
     .filter((row) => row.name.toLowerCase().includes(query.trim().toLowerCase()))
     .slice(0, 12);
-  const selected = filter.sparks.filter((rule) => rule.type === type);
+  const selected = sparks.filter((rule) => rule.type === type);
 
   return (
     <div className={styles.block}>
@@ -149,36 +142,10 @@ function SparkSearch({
           <span>
             {rule.kind} {"★".repeat(rule.minStars)}
           </span>
-          {filter.advanced ? (
-            <select
-              value={rule.where}
-              onChange={(event) =>
-                onChange({
-                  ...filter,
-                  sparks: filter.sparks.map((item) =>
-                    item.type === type && item.kind === rule.kind
-                      ? { ...item, where: event.target.value as SparkWhere }
-                      : item,
-                  ),
-                })
-              }
-            >
-              {WHERE_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          ) : null}
           <button
             type="button"
             className={styles.clearMini}
-            onClick={() =>
-              onChange({
-                ...filter,
-                sparks: upsertSparkRule(filter.sparks, type, rule.kind, 0),
-              })
-            }
+            onClick={() => onSparks(upsertSparkRule(sparks, type, rule.kind, 0))}
           >
             Remove
           </button>
@@ -196,10 +163,7 @@ function SparkSearch({
               <button
                 type="button"
                 onClick={() => {
-                  onChange({
-                    ...filter,
-                    sparks: upsertSparkRule(filter.sparks, type, row.name, 1),
-                  });
+                  onSparks(upsertSparkRule(sparks, type, row.name, 1));
                   setQuery("");
                 }}
               >
@@ -214,36 +178,79 @@ function SparkSearch({
   );
 }
 
+const NODE_COPY: Record<
+  SparkFocus,
+  { character: string; sparks: string }
+> = {
+  all: { character: "Main parent", sparks: "Anywhere on main or either grandparent" },
+  main: { character: "Main parent", sparks: "On the main parent only" },
+  gp1: { character: "Grandparent 1", sparks: "On grandparent 1 only" },
+  gp2: { character: "Grandparent 2", sparks: "On grandparent 2 only" },
+};
+
+function updateNode(filter: FilterState, key: NodeKey, node: NodeFilter): FilterState {
+  return { ...filter, [key]: node };
+}
+
 export function FilterPanel({ veterans, filter, onChange, onClearRoster }: Props) {
+  const nodeKey = editingNode(filter.focus);
+  const sparkTarget = filter.focus === "all" ? filter.tree : filter[filter.focus];
+  const charaTarget = filter.focus === "gp1" || filter.focus === "gp2" ? filter[filter.focus] : filter.main;
+
   const owned = useMemo(() => {
     const ids = new Set(veterans.map((v) => v.charaId));
     return allCharacters().filter((row) => ids.has(row.charaId));
   }, [veterans]);
-  const parentOptions = useMemo(() => {
+  const gp1Options = useMemo(() => {
     const ids = new Set<number>();
     for (const veteran of veterans) {
-      for (const member of veteran.family) ids.add(member.charaId);
+      const parent = veteran.family.find((row) => row.slot === "parent1");
+      if (parent) ids.add(parent.charaId);
+    }
+    return allCharacters().filter((row) => ids.has(row.charaId));
+  }, [veterans]);
+  const gp2Options = useMemo(() => {
+    const ids = new Set<number>();
+    for (const veteran of veterans) {
+      const parent = veteran.family.find((row) => row.slot === "parent2");
+      if (parent) ids.add(parent.charaId);
     }
     return allCharacters().filter((row) => ids.has(row.charaId));
   }, [veterans]);
   const whites = useMemo(() => uniqueFactorsByType(4), []);
   const greens = useMemo(() => uniqueFactorsByType(3), []);
 
+  const charaOptions =
+    filter.focus === "gp1" ? gp1Options : filter.focus === "gp2" ? gp2Options : owned;
+
+  function setFocus(focus: SparkFocus) {
+    onChange({ ...filter, focus });
+  }
+
+  function setSparks(sparks: SparkRule[]) {
+    const key = editingNode(filter.focus);
+    onChange(updateNode(filter, key, { ...filter[key], sparks }));
+  }
+
+  function setChara(charaId: number | null) {
+    const key: NodeKey = filter.focus === "gp1" || filter.focus === "gp2" ? filter.focus : "main";
+    onChange(updateNode(filter, key, { ...filter[key], charaId }));
+  }
+
   function setSpark(type: SparkRule["type"], kind: string, minStars: number) {
-    onChange({ ...filter, sparks: upsertSparkRule(filter.sparks, type, kind, minStars) });
+    setSparks(upsertSparkRule(sparkTarget.sparks, type, kind, minStars));
   }
 
-  function setWhere(type: SparkRule["type"], kind: string, where: SparkWhere) {
-    onChange({
-      ...filter,
-      sparks: filter.sparks.map((rule) =>
-        rule.type === type && rule.kind === kind ? { ...rule, where } : rule,
-      ),
-    });
-  }
+  const otherNodes = (
+    [
+      ["tree", "All"],
+      ["main", "Main"],
+      ["gp1", "GP 1"],
+      ["gp2", "GP 2"],
+    ] as const
+  ).filter(([key]) => key !== nodeKey && nodeHasRules(filter[key]));
 
-  const activeBlues = BLUE_KINDS.filter((kind) => starsFor(filter.sparks, 1, kind) > 0);
-  const activePinks = PINK_KINDS.filter((row) => starsFor(filter.sparks, 2, row.kind) > 0);
+  const copy = NODE_COPY[filter.focus];
 
   return (
     <aside className={styles.panel}>
@@ -253,6 +260,9 @@ export function FilterPanel({ veterans, filter, onChange, onClearRoster }: Props
           Reset
         </button>
       </div>
+
+      <FocusTabs value={filter.focus} onChange={setFocus} />
+      <p className={styles.hint}>{copy.sparks}</p>
 
       <label className={styles.field}>
         Search
@@ -264,16 +274,10 @@ export function FilterPanel({ veterans, filter, onChange, onClearRoster }: Props
       </label>
 
       <Combobox
-        label="Character"
-        valueId={filter.charaId}
-        options={owned}
-        onChange={(charaId) => onChange({ ...filter, charaId })}
-      />
-      <Combobox
-        label="Parent"
-        valueId={filter.parentCharaId}
-        options={parentOptions}
-        onChange={(parentCharaId) => onChange({ ...filter, parentCharaId })}
+        label={copy.character}
+        valueId={charaTarget.charaId}
+        options={charaOptions}
+        onChange={setChara}
       />
 
       <div className={styles.block}>
@@ -284,8 +288,8 @@ export function FilterPanel({ veterans, filter, onChange, onClearRoster }: Props
               key={kind}
               label={kind}
               tone="blue"
-              stars={starsFor(filter.sparks, 1, kind)}
-              onCycle={() => setSpark(1, kind, cycleStars(starsFor(filter.sparks, 1, kind)))}
+              stars={starsFor(sparkTarget.sparks, 1, kind)}
+              onCycle={() => setSpark(1, kind, cycleStars(starsFor(sparkTarget.sparks, 1, kind)))}
             />
           ))}
         </div>
@@ -299,64 +303,48 @@ export function FilterPanel({ veterans, filter, onChange, onClearRoster }: Props
               key={row.kind}
               label={row.label}
               tone="pink"
-              stars={starsFor(filter.sparks, 2, row.kind)}
-              onCycle={() => setSpark(2, row.kind, cycleStars(starsFor(filter.sparks, 2, row.kind)))}
+              stars={starsFor(sparkTarget.sparks, 2, row.kind)}
+              onCycle={() => setSpark(2, row.kind, cycleStars(starsFor(sparkTarget.sparks, 2, row.kind)))}
             />
           ))}
         </div>
       </div>
 
-      {filter.advanced ? (
-        <div className={styles.block}>
-          <p className={styles.blockTitle}>Spark slots</p>
-          {[...activeBlues.map((kind) => ({ type: 1 as const, kind })), ...activePinks.map((row) => ({ type: 2 as const, kind: row.kind }))].map(
-            (row) => (
-              <label key={`${row.type}-${row.kind}`} className={styles.sparkRow}>
-                {row.kind}
-                <select
-                  value={
-                    filter.sparks.find((rule) => rule.type === row.type && rule.kind === row.kind)
-                      ?.where ?? "any"
-                  }
-                  onChange={(event) =>
-                    setWhere(row.type, row.kind, event.target.value as SparkWhere)
-                  }
-                >
-                  {WHERE_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ),
-          )}
-        </div>
-      ) : null}
-
       <SparkSearch
         label="Green uniques"
         type={3}
         catalog={greens}
-        filter={filter}
-        onChange={onChange}
+        sparks={sparkTarget.sparks}
+        onSparks={setSparks}
       />
       <SparkSearch
         label="White skills"
         type={4}
         catalog={whites}
-        filter={filter}
-        onChange={onChange}
+        sparks={sparkTarget.sparks}
+        onSparks={setSparks}
       />
 
-      <label className={styles.check}>
-        <input
-          type="checkbox"
-          checked={filter.advanced}
-          onChange={(event) => onChange({ ...filter, advanced: event.target.checked })}
-        />
-        Advanced slot targeting
-      </label>
+      {otherNodes.length > 0 ? (
+        <div className={styles.other}>
+          <p className={styles.blockTitle}>Also required</p>
+          {otherNodes.map(([key, label]) => {
+            const extra = filter[key];
+            const bits = [
+              extra.charaId ? allCharacters().find((row) => row.charaId === extra.charaId)?.name : null,
+              ...extra.sparks.map((rule) => `${rule.kind} ${"★".repeat(rule.minStars)}`),
+            ].filter(Boolean);
+            return (
+              <p key={key} className={styles.otherRow}>
+                <button type="button" className={styles.clearMini} onClick={() => setFocus(key === "tree" ? "all" : key)}>
+                  {label}
+                </button>
+                {bits.join(" · ")}
+              </p>
+            );
+          })}
+        </div>
+      ) : null}
 
       <label className={styles.field}>
         Sort

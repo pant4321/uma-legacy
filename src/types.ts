@@ -9,7 +9,9 @@ export type SparkSlot =
   | "gp21"
   | "gp22";
 
-export type SparkWhere = "any" | "self" | "parent1" | "parent2" | "grandparents";
+export type SparkFocus = "all" | "main" | "gp1" | "gp2";
+
+export type NodeKey = "tree" | "main" | "gp1" | "gp2";
 
 export type Spark = {
   factorId: number;
@@ -79,7 +81,11 @@ export type SparkRule = {
   type: 1 | 2 | 3 | 4;
   kind: string;
   minStars: number;
-  where: SparkWhere;
+};
+
+export type NodeFilter = {
+  charaId: number | null;
+  sparks: SparkRule[];
 };
 
 export type SortKey =
@@ -96,10 +102,11 @@ export type SortKey =
 
 export type FilterState = {
   query: string;
-  charaId: number | null;
-  parentCharaId: number | null;
-  sparks: SparkRule[];
-  advanced: boolean;
+  focus: SparkFocus;
+  tree: NodeFilter;
+  main: NodeFilter;
+  gp1: NodeFilter;
+  gp2: NodeFilter;
   minRankScore: number | null;
   minStats: {
     speed: number | null;
@@ -114,12 +121,16 @@ export type FilterState = {
 
 export const APTITUDE_LETTERS = ["", "G", "F", "E", "D", "C", "B", "A", "S"] as const;
 
-export const SLOT_TO_WHERE: Record<SparkSlot, SparkWhere | "self"> = {
-  self: "self",
-  parent1: "parent1",
-  parent2: "parent2",
-  gp11: "grandparents",
-  gp12: "grandparents",
-  gp21: "grandparents",
-  gp22: "grandparents",
+export const FOCUS_SLOTS: Record<SparkFocus, SparkSlot[]> = {
+  all: ["self", "parent1", "parent2"],
+  main: ["self"],
+  gp1: ["parent1"],
+  gp2: ["parent2"],
 };
+
+export const FOCUS_LABELS: { id: SparkFocus; label: string; title: string }[] = [
+  { id: "all", label: "All", title: "Sparks from the parent and both grandparents" },
+  { id: "main", label: "Main", title: "Main parent sparks only" },
+  { id: "gp1", label: "GP 1", title: "Grandparent 1 (left parent) sparks" },
+  { id: "gp2", label: "GP 2", title: "Grandparent 2 (right parent) sparks" },
+];
