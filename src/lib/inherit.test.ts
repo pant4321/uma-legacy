@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import sample from "../data/sample-roster.json";
-import { inheritChance, sparkChips, formatInheritPct } from "./inherit";
+import {
+  inheritChance,
+  sparkChips,
+  formatInheritPct,
+  formatSparkGroupHeading,
+  groupSparkChips,
+} from "./inherit";
 import { parseDump } from "./parseDump";
 
 const veterans = parseDump(sample);
@@ -38,5 +44,20 @@ describe("formatInheritPct", () => {
     expect(formatInheritPct(5.91)).toBe("5.91%");
     expect(formatInheritPct(17.19)).toBe("17.2%");
     expect(formatInheritPct(100)).toBe("100%");
+  });
+});
+
+describe("formatSparkGroupHeading", () => {
+  it("shows unique count and cumulative spark total for every group", () => {
+    const groups = groupSparkChips(sparkChips(veterans[0], "all"));
+    for (const group of groups) {
+      const total = group.chips.reduce((sum, chip) => sum + chip.totalStars, 0);
+      expect(formatSparkGroupHeading(group.label, group.chips)).toBe(
+        `${group.label} (${group.chips.length}) - SPARK TOTAL (${total})`,
+      );
+    }
+    expect(formatSparkGroupHeading("Blue", [{ totalStars: 3 }, { totalStars: 2 }])).toBe(
+      "Blue (2) - SPARK TOTAL (5)",
+    );
   });
 });

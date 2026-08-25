@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { AptitudeKey, SparkFocus, Veteran } from "../types";
 import { APTITUDE_LETTERS } from "../types";
 import { parentsOf } from "../lib/filter";
-import { formatInheritPct, groupSparkChips, sparkChips } from "../lib/inherit";
+import { formatInheritPct, formatSparkGroupHeading, groupSparkChips, sparkChips } from "../lib/inherit";
 import { sparkColor } from "../lib/sparks";
 import { UmaIcon } from "./UmaIcon";
 import styles from "./HorseCard.module.css";
@@ -47,6 +47,7 @@ function SparkBoard({
   return (
     <div className={styles.board}>
       {groups.map((group) => {
+        const heading = formatSparkGroupHeading(group.label, group.chips);
         const body = (
           <ul className={styles.sparks}>
             {group.chips.map((chip) => {
@@ -77,8 +78,8 @@ function SparkBoard({
         if (group.id === "white" || group.id === "race" || group.id === "scenario") {
           return (
             <details key={group.id} className={styles.group} open>
-              <summary>
-                {group.label} ({group.chips.length})
+              <summary title="Unique sparks in this group, then total ★ across them">
+                {heading}
               </summary>
               {body}
             </details>
@@ -87,7 +88,9 @@ function SparkBoard({
 
         return (
           <div key={group.id} className={styles.group}>
-            <p className={styles.groupLabel}>{group.label}</p>
+            <p className={styles.groupLabel} title="Unique sparks in this group, then total ★ across them">
+              {heading}
+            </p>
             {body}
           </div>
         );

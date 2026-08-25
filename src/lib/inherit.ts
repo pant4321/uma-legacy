@@ -128,6 +128,12 @@ export function groupSparkChips(chips: SparkChip[]): SparkChipGroup[] {
     .filter((row) => row.chips.length > 0);
 }
 
+/** Unique spark count plus cumulative ★ for a spark-group header. */
+export function formatSparkGroupHeading(label: string, chips: { totalStars: number }[]): string {
+  const sparkTotal = chips.reduce((sum, chip) => sum + chip.totalStars, 0);
+  return `${label} (${chips.length}) - SPARK TOTAL (${sparkTotal})`;
+}
+
 export function matchedSparkKeys(filter: {
   tree: { groups: { sparks: { type: number; kind: string }[] }[] };
   main: { groups: { sparks: { type: number; kind: string }[] }[] };
