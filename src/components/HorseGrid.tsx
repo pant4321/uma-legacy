@@ -68,8 +68,8 @@ export function HorseGrid({
             title="Winning saddles are race-title saddles this veteran earned"
             onChange={(event) => onSort(event.target.value as SortKey)}
           >
-            <option value="whiteCount">White spark ★ (all)</option>
-            <option value="whiteParentCount">White spark ★ (parent)</option>
+            <option value="whiteCount">Normal white ★ (all)</option>
+            <option value="whiteParentCount">Normal white ★ (parent)</option>
             <option value="rankScore">Rank score</option>
             <option value="newest">Newest</option>
             <option value="oldest">Oldest</option>

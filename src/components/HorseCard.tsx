@@ -120,10 +120,10 @@ export function HorseCard({ veteran, focus, matchedKeys, onFocus }: Props) {
             <span>Gut {veteran.guts}</span>
             <span>Wit {veteran.wit}</span>
             <span title="Race-title saddles this veteran earned">Saddles {veteran.winSaddleCount}</span>
-            <span title="Unique white / race / scenario sparks on the main parent, then total ★">
+            <span title="Unique normal white sparks on the main parent, then total ★">
               Parent whites {veteran.whiteParentCount} · {veteran.whiteParentStars}★
             </span>
-            <span title="Unique white / race / scenario sparks on parent + grandparents, then total ★">
+            <span title="Unique normal white sparks on parent + grandparents, then total ★">
               Whites {veteran.whiteCount} · {veteran.whiteStars}★
             </span>
           </p>

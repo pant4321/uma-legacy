@@ -5,12 +5,15 @@ import {
   describeNode,
   emptyFilter,
   emptyNode,
+  enrichVeteran,
   lineageSparks,
   normalizeFilter,
   sparksForFocus,
+  summarizeWhiteSparks,
 } from "./filter";
 import { parseDump } from "./parseDump";
 import type { JoinMode, NodeFilter, SparkRule } from "../types";
+import { TREE_SLOTS } from "../types";
 
 const veterans = parseDump(sample);
 
@@ -156,6 +159,31 @@ describe("applyFilter", () => {
     byParent.sort = "whiteParentCount";
     const ordered = applyFilter([moreSkillsFewerStars, fewerSkillsMoreStars], byParent);
     expect(ordered.map((row) => row.id)).toEqual([1, 2]);
+  });
+
+  it("ignores race and scenario whites when sorting by normal white ★", () => {
+    const normalHeavy = structuredClone(veterans[0]);
+    normalHeavy.id = 10;
+    normalHeavy.sparks = [
+      { factorId: 1, name: "SkillA", type: 4, stars: 3, slot: "self" },
+      { factorId: 2, name: "SkillA", type: 4, stars: 2, slot: "parent1" },
+    ];
+
+    const raceHeavy = structuredClone(veterans[0]);
+    raceHeavy.id = 11;
+    raceHeavy.sparks = [
+      { factorId: 3, name: "SkillB", type: 4, stars: 1, slot: "self" },
+      { factorId: 4, name: "Arima Kinen", type: 5, stars: 3, slot: "self" },
+      { factorId: 5, name: "UAF", type: 6, stars: 3, slot: "parent1" },
+    ];
+
+    expect(summarizeWhiteSparks(normalHeavy, TREE_SLOTS).stars).toBe(5);
+    expect(summarizeWhiteSparks(raceHeavy, TREE_SLOTS).stars).toBe(1);
+    expect(enrichVeteran(raceHeavy).whiteStars).toBe(1);
+
+    const filter = emptyFilter();
+    filter.sort = "whiteCount";
+    expect(applyFilter([raceHeavy, normalHeavy], filter).map((row) => row.id)).toEqual([10, 11]);
   });
 });
 

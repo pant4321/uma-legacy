@@ -12,11 +12,11 @@ import type {
 } from "../types";
 import { FOCUS_SLOTS, MAIN_SLOTS, SORT_KEYS, TREE_SLOTS } from "../types";
 
-function isWhiteSparkType(type: number): boolean {
-  return type === 4 || type === 5 || type === 6;
+function isNormalWhiteSpark(type: number): boolean {
+  return type === 4;
 }
 
-/** Unique white skills plus cumulative ★ on the given slots. */
+/** Unique normal-white skills plus cumulative ★ on the given slots (excludes race/scenario). */
 export function summarizeWhiteSparks(
   veteran: Veteran,
   slots: SparkSlot[],
@@ -24,7 +24,7 @@ export function summarizeWhiteSparks(
   const names = new Set<string>();
   let stars = 0;
   for (const spark of veteran.sparks) {
-    if (!isWhiteSparkType(spark.type)) continue;
+    if (!isNormalWhiteSpark(spark.type)) continue;
     if (!slots.includes(spark.slot)) continue;
     names.add(spark.name);
     stars += spark.stars;
