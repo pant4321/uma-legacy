@@ -78,6 +78,8 @@ export type Veteran = {
   createdText: string;
   whiteCount: number;
   whiteParentCount: number;
+  whiteStars: number;
+  whiteParentStars: number;
 };
 
 export type SparkRule = {

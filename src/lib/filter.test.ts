@@ -123,32 +123,39 @@ describe("applyFilter", () => {
     expect(applyFilter(veterans, byName).map((v) => v.name)).toEqual(["Mejiro McQueen"]);
   });
 
-  it("defaults to white-spark sort and can sort by parent whites only", () => {
+  it("defaults to white-spark sort and ranks by cumulative white ★, not skill count", () => {
     expect(emptyFilter().sort).toBe("whiteCount");
 
-    const few = structuredClone(veterans[0]);
-    few.id = 1;
-    few.sparks = few.sparks.filter((spark) => spark.slot !== "self" || spark.type !== 4);
-    few.sparks.push({ factorId: 1, name: "OnlyOne", type: 4, stars: 1, slot: "self" });
+    const fewerSkillsMoreStars = structuredClone(veterans[0]);
+    fewerSkillsMoreStars.id = 1;
+    fewerSkillsMoreStars.sparks = fewerSkillsMoreStars.sparks.filter(
+      (spark) => spark.slot !== "self" || (spark.type !== 4 && spark.type !== 5 && spark.type !== 6),
+    );
+    fewerSkillsMoreStars.sparks.push({
+      factorId: 1,
+      name: "OnlyOne",
+      type: 4,
+      stars: 3,
+      slot: "self",
+    });
 
-    const many = structuredClone(veterans[1]);
-    many.id = 2;
-    many.sparks = [
-      ...many.sparks.filter((spark) => spark.slot !== "self" || spark.type !== 4),
+    const moreSkillsFewerStars = structuredClone(veterans[1]);
+    moreSkillsFewerStars.id = 2;
+    moreSkillsFewerStars.sparks = [
+      ...moreSkillsFewerStars.sparks.filter(
+        (spark) => spark.slot !== "self" || (spark.type !== 4 && spark.type !== 5 && spark.type !== 6),
+      ),
       { factorId: 2, name: "A", type: 4, stars: 1, slot: "self" },
       { factorId: 3, name: "B", type: 4, stars: 1, slot: "self" },
-      { factorId: 4, name: "C", type: 4, stars: 1, slot: "self" },
-      { factorId: 5, name: "D", type: 5, stars: 1, slot: "self" },
     ];
 
-    // Stored counts intentionally wrong / missing — sort must recompute from sparks.
-    delete (few as { whiteParentCount?: number }).whiteParentCount;
-    many.whiteParentCount = 0;
+    delete (fewerSkillsMoreStars as { whiteParentStars?: number }).whiteParentStars;
+    moreSkillsFewerStars.whiteParentStars = 0;
 
     const byParent = emptyFilter();
     byParent.sort = "whiteParentCount";
-    const ordered = applyFilter([few, many], byParent);
-    expect(ordered.map((row) => row.id)).toEqual([2, 1]);
+    const ordered = applyFilter([moreSkillsFewerStars, fewerSkillsMoreStars], byParent);
+    expect(ordered.map((row) => row.id)).toEqual([1, 2]);
   });
 });
 

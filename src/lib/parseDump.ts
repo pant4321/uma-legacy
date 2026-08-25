@@ -131,6 +131,8 @@ export function veteranFromRaw(raw: unknown, index: number): Veteran | null {
     createdText: created.createdText,
     whiteCount: 0,
     whiteParentCount: 0,
+    whiteStars: 0,
+    whiteParentStars: 0,
   });
 }
 

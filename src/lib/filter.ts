@@ -16,22 +16,31 @@ function isWhiteSparkType(type: number): boolean {
   return type === 4 || type === 5 || type === 6;
 }
 
-/** Unique white / race / scenario spark names on the given slots. */
-export function countWhiteSparks(veteran: Veteran, slots: SparkSlot[]): number {
+/** Unique white skills plus cumulative ★ on the given slots. */
+export function summarizeWhiteSparks(
+  veteran: Veteran,
+  slots: SparkSlot[],
+): { count: number; stars: number } {
   const names = new Set<string>();
+  let stars = 0;
   for (const spark of veteran.sparks) {
     if (!isWhiteSparkType(spark.type)) continue;
     if (!slots.includes(spark.slot)) continue;
     names.add(spark.name);
+    stars += spark.stars;
   }
-  return names.size;
+  return { count: names.size, stars };
 }
 
 export function enrichVeteran(veteran: Veteran): Veteran {
+  const all = summarizeWhiteSparks(veteran, TREE_SLOTS);
+  const parent = summarizeWhiteSparks(veteran, MAIN_SLOTS);
   return {
     ...veteran,
-    whiteCount: countWhiteSparks(veteran, TREE_SLOTS),
-    whiteParentCount: countWhiteSparks(veteran, MAIN_SLOTS),
+    whiteCount: all.count,
+    whiteStars: all.stars,
+    whiteParentCount: parent.count,
+    whiteParentStars: parent.stars,
   };
 }
 
@@ -162,9 +171,9 @@ function compareVeterans(a: Veteran, b: Veteran, sort: FilterState["sort"]): num
     case "oldest":
       return a.createdAt - b.createdAt;
     case "whiteCount":
-      return countWhiteSparks(b, TREE_SLOTS) - countWhiteSparks(a, TREE_SLOTS);
+      return summarizeWhiteSparks(b, TREE_SLOTS).stars - summarizeWhiteSparks(a, TREE_SLOTS).stars;
     case "whiteParentCount":
-      return countWhiteSparks(b, MAIN_SLOTS) - countWhiteSparks(a, MAIN_SLOTS);
+      return summarizeWhiteSparks(b, MAIN_SLOTS).stars - summarizeWhiteSparks(a, MAIN_SLOTS).stars;
     case "g1":
       return b.winSaddleCount - a.winSaddleCount;
     case "speed":
@@ -180,7 +189,7 @@ function compareVeterans(a: Veteran, b: Veteran, sort: FilterState["sort"]): num
     case "rankScore":
       return b.rankScore - a.rankScore;
     default:
-      return b.whiteCount - a.whiteCount;
+      return summarizeWhiteSparks(b, TREE_SLOTS).stars - summarizeWhiteSparks(a, TREE_SLOTS).stars;
   }
 }
 
