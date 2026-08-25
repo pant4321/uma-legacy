@@ -16,6 +16,8 @@ UmaExtractor needs to run while the game is on **Enhance → List** (Veteran Lis
 
 Live site: https://pant4321.github.io/uma-legacy/
 
+That URL is the production build committed on this branch (`index.html` and `assets/`). Run `npm run build` after UI changes so those files stay current.
+
 ## Develop
 
 ```bash
