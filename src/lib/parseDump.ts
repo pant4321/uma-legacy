@@ -1,7 +1,7 @@
 import type { Aptitudes, FamilyMember, Skill, Veteran } from "../types";
-import { TREE_SLOTS } from "../types";
 import { characterName, displayName, skillName } from "./names";
 import { charaIdFromCard, decodeFactorList, positionToSlot } from "./sparks";
+import { enrichVeteran } from "./filter";
 
 export class ParseError extends Error {
   constructor(message: string) {
@@ -107,7 +107,7 @@ export function veteranFromRaw(raw: unknown, index: number): Veteran | null {
   const created = parseCreated(rec.create_time ?? rec.register_time);
   const saddles = Array.isArray(rec.win_saddle_id_array) ? rec.win_saddle_id_array.length : 0;
 
-  return {
+  return enrichVeteran({
     id: num(rec.trained_chara_id, index + 1),
     cardId,
     charaId,
@@ -129,11 +129,9 @@ export function veteranFromRaw(raw: unknown, index: number): Veteran | null {
     winSaddleCount: saddles,
     createdAt: created.createdAt,
     createdText: created.createdText,
-    whiteCount: sparks.filter(
-      (spark) => spark.type === 4 && TREE_SLOTS.includes(spark.slot),
-    ).length,
-    whiteParentCount: selfSparks.filter((spark) => spark.type === 4).length,
-  };
+    whiteCount: 0,
+    whiteParentCount: 0,
+  });
 }
 
 export function extractRawList(data: unknown): unknown[] {

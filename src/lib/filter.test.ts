@@ -126,19 +126,29 @@ describe("applyFilter", () => {
   it("defaults to white-spark sort and can sort by parent whites only", () => {
     expect(emptyFilter().sort).toBe("whiteCount");
 
-    const stacked = structuredClone(veterans[1]);
-    stacked.id = 99;
-    stacked.whiteCount = 1;
-    stacked.whiteParentCount = 5;
-    stacked.sparks = [
-      ...stacked.sparks,
-      { factorId: 20033101, name: "Focus", type: 4, stars: 1, slot: "self" },
+    const few = structuredClone(veterans[0]);
+    few.id = 1;
+    few.sparks = few.sparks.filter((spark) => spark.slot !== "self" || spark.type !== 4);
+    few.sparks.push({ factorId: 1, name: "OnlyOne", type: 4, stars: 1, slot: "self" });
+
+    const many = structuredClone(veterans[1]);
+    many.id = 2;
+    many.sparks = [
+      ...many.sparks.filter((spark) => spark.slot !== "self" || spark.type !== 4),
+      { factorId: 2, name: "A", type: 4, stars: 1, slot: "self" },
+      { factorId: 3, name: "B", type: 4, stars: 1, slot: "self" },
+      { factorId: 4, name: "C", type: 4, stars: 1, slot: "self" },
+      { factorId: 5, name: "D", type: 5, stars: 1, slot: "self" },
     ];
+
+    // Stored counts intentionally wrong / missing — sort must recompute from sparks.
+    delete (few as { whiteParentCount?: number }).whiteParentCount;
+    many.whiteParentCount = 0;
 
     const byParent = emptyFilter();
     byParent.sort = "whiteParentCount";
-    const ordered = applyFilter([veterans[0], stacked], byParent);
-    expect(ordered[0].id).toBe(99);
+    const ordered = applyFilter([few, many], byParent);
+    expect(ordered.map((row) => row.id)).toEqual([2, 1]);
   });
 });
 

@@ -12,6 +12,33 @@ import type {
 } from "../types";
 import { FOCUS_SLOTS, MAIN_SLOTS, SORT_KEYS, TREE_SLOTS } from "../types";
 
+function isWhiteSparkType(type: number): boolean {
+  return type === 4 || type === 5 || type === 6;
+}
+
+/** Unique white / race / scenario spark names on the given slots. */
+export function countWhiteSparks(veteran: Veteran, slots: SparkSlot[]): number {
+  const names = new Set<string>();
+  for (const spark of veteran.sparks) {
+    if (!isWhiteSparkType(spark.type)) continue;
+    if (!slots.includes(spark.slot)) continue;
+    names.add(spark.name);
+  }
+  return names.size;
+}
+
+export function enrichVeteran(veteran: Veteran): Veteran {
+  return {
+    ...veteran,
+    whiteCount: countWhiteSparks(veteran, TREE_SLOTS),
+    whiteParentCount: countWhiteSparks(veteran, MAIN_SLOTS),
+  };
+}
+
+export function enrichVeterans(veterans: Veteran[]): Veteran[] {
+  return veterans.map(enrichVeteran);
+}
+
 export function emptyGroup(): SparkGroup {
   return { id: crypto.randomUUID(), join: "and", sparks: [] };
 }
@@ -135,9 +162,9 @@ function compareVeterans(a: Veteran, b: Veteran, sort: FilterState["sort"]): num
     case "oldest":
       return a.createdAt - b.createdAt;
     case "whiteCount":
-      return b.whiteCount - a.whiteCount;
+      return countWhiteSparks(b, TREE_SLOTS) - countWhiteSparks(a, TREE_SLOTS);
     case "whiteParentCount":
-      return b.whiteParentCount - a.whiteParentCount;
+      return countWhiteSparks(b, MAIN_SLOTS) - countWhiteSparks(a, MAIN_SLOTS);
     case "g1":
       return b.winSaddleCount - a.winSaddleCount;
     case "speed":

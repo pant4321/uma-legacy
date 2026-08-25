@@ -117,6 +117,9 @@ export function HorseCard({ veteran, focus, matchedKeys, onFocus }: Props) {
             <span>Gut {veteran.guts}</span>
             <span>Wit {veteran.wit}</span>
             <span title="Race-title saddles this veteran earned">Saddles {veteran.winSaddleCount}</span>
+            <span title="White / race / scenario sparks on the main parent">
+              Parent whites {veteran.whiteParentCount}
+            </span>
           </p>
         </div>
       </button>

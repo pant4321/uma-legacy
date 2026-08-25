@@ -3,7 +3,7 @@ import sample from "./data/sample-roster.json";
 import { FilterPanel } from "./components/FilterPanel";
 import { HorseGrid } from "./components/HorseGrid";
 import { UploadPanel } from "./components/UploadPanel";
-import { applyFilter, emptyFilter } from "./lib/filter";
+import { applyFilter, emptyFilter, enrichVeterans } from "./lib/filter";
 import { matchedSparkKeys } from "./lib/inherit";
 import { ParseError, parseDump, parseDumpText } from "./lib/parseDump";
 import { clearRoster, loadRoster, saveRoster } from "./lib/storage";
@@ -21,16 +21,21 @@ export default function App() {
   useEffect(() => {
     loadRoster()
       .then((stored) => {
-        if (stored && stored.length > 0) setVeterans(stored);
+        if (stored && stored.length > 0) {
+          const enriched = enrichVeterans(stored);
+          setVeterans(enriched);
+          void saveRoster(enriched);
+        }
       })
       .finally(() => setReady(true));
   }, []);
 
   function accept(next: Veteran[]) {
-    setVeterans(next);
+    const enriched = enrichVeterans(next);
+    setVeterans(enriched);
     setError(null);
     setFilter(emptyFilter());
-    void saveRoster(next);
+    void saveRoster(enriched);
   }
 
   function loadText(text: string) {
