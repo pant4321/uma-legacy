@@ -12,6 +12,7 @@ type Props = {
   query: string;
   sort: SortKey;
   focus: SparkFocus;
+  matchedKeys: Set<string>;
   onQuery: (query: string) => void;
   onSort: (sort: SortKey) => void;
   onFocus: (focus: SparkFocus) => void;
@@ -23,6 +24,7 @@ export function HorseGrid({
   query,
   sort,
   focus,
+  matchedKeys,
   onQuery,
   onSort,
   onFocus,
@@ -91,7 +93,13 @@ export function HorseGrid({
       ) : (
         <div className={styles.grid}>
           {visible.map((veteran) => (
-            <HorseCard key={veteran.id} veteran={veteran} focus={focus} onFocus={onFocus} />
+            <HorseCard
+              key={veteran.id}
+              veteran={veteran}
+              focus={focus}
+              matchedKeys={matchedKeys}
+              onFocus={onFocus}
+            />
           ))}
         </div>
       )}

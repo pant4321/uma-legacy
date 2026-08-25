@@ -1,7 +1,8 @@
 import { useState } from "react";
-import type { AptitudeKey, Spark, SparkFocus, Veteran } from "../types";
+import type { AptitudeKey, SparkFocus, Veteran } from "../types";
 import { APTITUDE_LETTERS } from "../types";
-import { parentsOf, sparksForFocus } from "../lib/filter";
+import { parentsOf } from "../lib/filter";
+import { formatInheritPct, groupSparkChips, sparkChips } from "../lib/inherit";
 import { sparkColor } from "../lib/sparks";
 import { UmaIcon } from "./UmaIcon";
 import styles from "./HorseCard.module.css";
@@ -9,6 +10,7 @@ import styles from "./HorseCard.module.css";
 type Props = {
   veteran: Veteran;
   focus: SparkFocus;
+  matchedKeys: Set<string>;
   onFocus: (focus: SparkFocus) => void;
 };
 
@@ -29,30 +31,74 @@ function letter(value: number): string {
   return APTITUDE_LETTERS[value] ?? "";
 }
 
-function starText(stars: number): string {
-  return stars > 3 ? `${stars}★` : "★".repeat(stars);
-}
+function SparkBoard({
+  veteran,
+  focus,
+  matchedKeys,
+}: {
+  veteran: Veteran;
+  focus: SparkFocus;
+  matchedKeys: Set<string>;
+}) {
+  const groups = groupSparkChips(sparkChips(veteran, focus));
+  if (groups.length === 0) return null;
+  const showParentStars = focus !== "main";
 
-function SparkPills({ sparks }: { sparks: Spark[] }) {
-  if (sparks.length === 0) return null;
   return (
-    <ul className={styles.sparks}>
-      {sparks.map((spark) => (
-        <li
-          key={`${spark.slot}-${spark.factorId}-${spark.name}`}
-          className={`${styles.pill} ${styles[sparkColor(spark.type)]}`}
-        >
-          {spark.name} {starText(spark.stars)}
-        </li>
-      ))}
-    </ul>
+    <div className={styles.board}>
+      {groups.map((group) => {
+        const body = (
+          <ul className={styles.sparks}>
+            {group.chips.map((chip) => {
+              const matched = matchedKeys.has(`${chip.type}:${chip.name}`);
+              return (
+                <li
+                  key={`${chip.type}:${chip.name}`}
+                  className={`${styles.chip} ${styles[sparkColor(chip.type)]} ${matched ? styles.matched : ""}`}
+                  title={`${chip.name}: ${chip.totalStars}★ total, ${formatInheritPct(chip.inheritPct)} inherit over a career`}
+                >
+                  <span className={styles.chipStars}>
+                    {chip.totalStars}
+                    <span className={styles.starMark}>★</span>
+                  </span>
+                  <span className={styles.chipName}>{chip.name}</span>
+                  <span className={styles.chipPct}>{formatInheritPct(chip.inheritPct)}</span>
+                  {showParentStars && chip.parentStars > 0 ? (
+                    <span className={styles.chipParent} title="Main parent stars">
+                      👤 {chip.parentStars}★
+                    </span>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ul>
+        );
+
+        if (group.id === "white" || group.id === "race" || group.id === "scenario") {
+          return (
+            <details key={group.id} className={styles.group} open>
+              <summary>
+                {group.label} ({group.chips.length})
+              </summary>
+              {body}
+            </details>
+          );
+        }
+
+        return (
+          <div key={group.id} className={styles.group}>
+            <p className={styles.groupLabel}>{group.label}</p>
+            {body}
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
-export function HorseCard({ veteran, focus, onFocus }: Props) {
+export function HorseCard({ veteran, focus, matchedKeys, onFocus }: Props) {
   const [open, setOpen] = useState(false);
   const parents = parentsOf(veteran);
-  const shownSparks = sparksForFocus(veteran, focus);
 
   return (
     <article className={`${styles.card} ${open ? styles.open : ""}`}>
@@ -72,9 +118,9 @@ export function HorseCard({ veteran, focus, onFocus }: Props) {
             <span>Wit {veteran.wit}</span>
             <span title="Race-title saddles this veteran earned">Saddles {veteran.winSaddleCount}</span>
           </p>
-          <SparkPills sparks={shownSparks} />
         </div>
       </button>
+      <SparkBoard veteran={veteran} focus={focus} matchedKeys={matchedKeys} />
       <div className={styles.parents}>
         {parents.gp1 ? (
           <button

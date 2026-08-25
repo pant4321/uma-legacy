@@ -10,6 +10,7 @@ UmaExtractor needs to run while the game is on **Enhance → List** (Veteran Lis
 - Filter sparks in two columns:
   - **All** — combined stars on the main parent and both grandparents (up to 9★)
   - **Main Parent** — stars on the veteran herself (up to 3★)
+- Cards list sparks in color groups with **total ★**, inherit chance, and main-parent ★ at the end
 - Use **Show sparks** (All / Main / GP 1 / GP 2) to change which sparks cards display; this does not change the filters
 - Click **Add** under a color to insert a search box and star picker, then pick the factor
 - Combine factors with **All (AND)** or **Any (OR)** inside a combination, then add more combinations for extra AND/OR groups

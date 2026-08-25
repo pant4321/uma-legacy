@@ -4,6 +4,7 @@ import { FilterPanel } from "./components/FilterPanel";
 import { HorseGrid } from "./components/HorseGrid";
 import { UploadPanel } from "./components/UploadPanel";
 import { applyFilter, emptyFilter } from "./lib/filter";
+import { matchedSparkKeys } from "./lib/inherit";
 import { ParseError, parseDump, parseDumpText } from "./lib/parseDump";
 import { clearRoster, loadRoster, saveRoster } from "./lib/storage";
 import type { FilterState, SparkFocus, Veteran } from "./types";
@@ -44,6 +45,8 @@ export default function App() {
     () => (veterans ? applyFilter(veterans, filter) : []),
     [veterans, filter],
   );
+
+  const matchedKeys = useMemo(() => matchedSparkKeys(filter), [filter]);
 
   if (!ready) {
     return <p className={styles.boot}>Loading saved roster…</p>;
@@ -87,6 +90,7 @@ export default function App() {
         query={filter.query}
         sort={filter.sort}
         focus={focus}
+        matchedKeys={matchedKeys}
         onQuery={(query) => setFilter({ ...filter, query })}
         onSort={(sort) => setFilter({ ...filter, sort })}
         onFocus={setFocus}
