@@ -11,6 +11,8 @@ export type SparkSlot =
 
 export type NodeKey = "tree" | "main";
 
+export type JoinMode = "and" | "or";
+
 export type Spark = {
   factorId: number;
   name: string;
@@ -82,8 +84,15 @@ export type SparkRule = {
   minStars: number;
 };
 
-export type NodeFilter = {
+export type SparkGroup = {
+  id: string;
+  join: JoinMode;
   sparks: SparkRule[];
+};
+
+export type NodeFilter = {
+  join: JoinMode;
+  groups: SparkGroup[];
 };
 
 export type SortKey =
@@ -105,7 +114,27 @@ export type FilterState = {
   sort: SortKey;
 };
 
+export type FilterPreset = {
+  id: string;
+  name: string;
+  savedAt: number;
+  filter: FilterState;
+};
+
 export const APTITUDE_LETTERS = ["", "G", "F", "E", "D", "C", "B", "A", "S"] as const;
 
 export const TREE_SLOTS: SparkSlot[] = ["self", "parent1", "parent2"];
 export const MAIN_SLOTS: SparkSlot[] = ["self"];
+
+export const SORT_KEYS: SortKey[] = [
+  "rankScore",
+  "newest",
+  "oldest",
+  "whiteCount",
+  "g1",
+  "speed",
+  "stamina",
+  "power",
+  "guts",
+  "wit",
+];

@@ -57,6 +57,75 @@
   font-size: 0.75rem;
 }
 
+.summary {
+  color: #d7b56d !important;
+  font-size: 0.72rem !important;
+}
+
+.join {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.45rem;
+}
+
+.join button {
+  border: 1px solid #2c3646;
+  border-radius: 999px;
+  background: #0d1219;
+  color: #9aa6b5;
+  font: inherit;
+  font-size: 0.72rem;
+  cursor: pointer;
+  padding: 0.22rem 0.55rem;
+}
+
+.joinOn {
+  border-color: #d7b56d !important;
+  background: #2a2314 !important;
+  color: #f3d27a !important;
+}
+
+.combo {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.7rem;
+  border: 1px solid #243044;
+  border-radius: 8px;
+  background: #0e141c;
+}
+
+.comboHead {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.6rem;
+  align-items: center;
+}
+
+.comboHead strong {
+  font-size: 0.78rem;
+}
+
+.comboHead .join {
+  margin-top: 0;
+}
+
+.addCombo {
+  border: 1px dashed #3d4c63;
+  border-radius: 8px;
+  background: transparent;
+  color: #9aa6b5;
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+  padding: 0.4rem 0.55rem;
+}
+
+.addCombo:hover {
+  border-color: #6e8fb8;
+  color: #d5dce6;
+}
+
 .clearMini,
 .danger {
   border: 1px solid #3d4c63;

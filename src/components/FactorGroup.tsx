@@ -14,6 +14,31 @@ type Props = {
   onSparks: (next: SparkRule[]) => void;
 };
 
+function StarSlider({ value, onChange }: { value: number; onChange: (stars: number) => void }) {
+  return (
+    <div className={styles.starSlider}>
+      <div className={styles.stops}>
+        <div className={styles.track} aria-hidden="true">
+          <div className={styles.fill} style={{ width: `${((value - 1) / 2) * 100}%` }} />
+        </div>
+        {[1, 2, 3].map((n) => (
+          <button
+            key={n}
+            type="button"
+            className={`${styles.stop} ${n <= value ? styles.stopOn : ""}`}
+            aria-label={`${n} star minimum`}
+            aria-pressed={n === value}
+            onClick={() => onChange(n)}
+          >
+            <span className={styles.stopDot} />
+            <span className={n <= value ? styles.starOn : styles.starOff}>{"★".repeat(n)}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function FactorRow({
   rule,
   placeholder,
@@ -87,25 +112,7 @@ function FactorRow({
           </ul>
         ) : null}
       </div>
-      <div className={styles.sliderBlock}>
-        <input
-          className={styles.slider}
-          type="range"
-          min={1}
-          max={3}
-          step={1}
-          value={rule.minStars}
-          aria-label="Minimum stars"
-          onChange={(event) => onChange({ minStars: Number(event.target.value) })}
-        />
-        <div className={styles.starMarks} aria-hidden="true">
-          {[1, 2, 3].map((n) => (
-            <span key={n} className={n <= rule.minStars ? styles.starOn : styles.starOff}>
-              {"★".repeat(n)}
-            </span>
-          ))}
-        </div>
-      </div>
+      <StarSlider value={rule.minStars} onChange={(minStars) => onChange({ minStars })} />
     </div>
   );
 }

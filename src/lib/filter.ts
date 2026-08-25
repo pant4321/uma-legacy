@@ -1,8 +1,22 @@
-import type { FilterState, NodeFilter, Spark, SparkRule, SparkSlot, Veteran } from "../types";
-import { MAIN_SLOTS, TREE_SLOTS } from "../types";
+import type {
+  FilterState,
+  JoinMode,
+  NodeFilter,
+  SortKey,
+  Spark,
+  SparkGroup,
+  SparkRule,
+  SparkSlot,
+  Veteran,
+} from "../types";
+import { MAIN_SLOTS, SORT_KEYS, TREE_SLOTS } from "../types";
+
+export function emptyGroup(): SparkGroup {
+  return { id: crypto.randomUUID(), join: "and", sparks: [] };
+}
 
 export function emptyNode(): NodeFilter {
-  return { sparks: [] };
+  return { join: "and", groups: [emptyGroup()] };
 }
 
 export function emptyFilter(): FilterState {
@@ -50,19 +64,36 @@ export function parentsOf(veteran: Veteran) {
   };
 }
 
+function isActiveRule(rule: SparkRule): boolean {
+  return Boolean(rule.kind) && rule.minStars > 0;
+}
+
+function ruleMatches(veteran: Veteran, rule: SparkRule, slots: SparkSlot[]): boolean {
+  return veteran.sparks.some(
+    (spark) =>
+      slots.includes(spark.slot) &&
+      spark.type === rule.type &&
+      spark.name === rule.kind &&
+      spark.stars >= rule.minStars,
+  );
+}
+
+function groupMatches(veteran: Veteran, group: SparkGroup, slots: SparkSlot[]): boolean {
+  const rules = group.sparks.filter(isActiveRule);
+  if (rules.length === 0) return true;
+  if (group.join === "or") return rules.some((rule) => ruleMatches(veteran, rule, slots));
+  return rules.every((rule) => ruleMatches(veteran, rule, slots));
+}
+
+function activeGroups(node: NodeFilter): SparkGroup[] {
+  return node.groups.filter((group) => group.sparks.some(isActiveRule));
+}
+
 function nodeMatches(veteran: Veteran, node: NodeFilter, slots: SparkSlot[]): boolean {
-  for (const rule of node.sparks) {
-    if (!rule.kind || rule.minStars <= 0) continue;
-    const hit = veteran.sparks.some(
-      (spark) =>
-        slots.includes(spark.slot) &&
-        spark.type === rule.type &&
-        spark.name === rule.kind &&
-        spark.stars >= rule.minStars,
-    );
-    if (!hit) return false;
-  }
-  return true;
+  const groups = activeGroups(node);
+  if (groups.length === 0) return true;
+  if (node.join === "or") return groups.some((group) => groupMatches(veteran, group, slots));
+  return groups.every((group) => groupMatches(veteran, group, slots));
 }
 
 function matchesQuery(veteran: Veteran, query: string): boolean {
@@ -126,4 +157,94 @@ export function updateSparkRule(sparks: SparkRule[], id: string, patch: Partial<
 
 export function removeSparkRule(sparks: SparkRule[], id: string): SparkRule[] {
   return sparks.filter((rule) => rule.id !== id);
+}
+
+export function updateGroup(node: NodeFilter, id: string, patch: Partial<SparkGroup>): NodeFilter {
+  return {
+    ...node,
+    groups: node.groups.map((group) => (group.id === id ? { ...group, ...patch } : group)),
+  };
+}
+
+export function addGroup(node: NodeFilter): NodeFilter {
+  return { ...node, groups: [...node.groups, emptyGroup()] };
+}
+
+export function removeGroup(node: NodeFilter, id: string): NodeFilter {
+  const groups = node.groups.filter((group) => group.id !== id);
+  return { ...node, groups: groups.length > 0 ? groups : [emptyGroup()] };
+}
+
+function describeGroup(group: SparkGroup): string {
+  const bits = group.sparks.filter(isActiveRule).map((rule) => `${rule.kind} ${"★".repeat(rule.minStars)}`);
+  if (bits.length === 0) return "";
+  const glue = group.join === "or" ? " OR " : " AND ";
+  return bits.length > 1 ? `(${bits.join(glue)})` : bits[0];
+}
+
+export function describeNode(node: NodeFilter): string {
+  const parts = activeGroups(node).map(describeGroup).filter(Boolean);
+  if (parts.length === 0) return "";
+  const glue = node.join === "or" ? " OR " : " AND ";
+  return parts.join(glue);
+}
+
+function asJoin(value: unknown): JoinMode {
+  return value === "or" ? "or" : "and";
+}
+
+function asRule(raw: unknown): SparkRule | null {
+  if (!raw || typeof raw !== "object") return null;
+  const rec = raw as Record<string, unknown>;
+  const type = rec.type;
+  if (type !== 1 && type !== 2 && type !== 3 && type !== 4 && type !== 5 && type !== 6) return null;
+  const minStars = typeof rec.minStars === "number" && rec.minStars >= 1 && rec.minStars <= 3 ? rec.minStars : 1;
+  return {
+    id: typeof rec.id === "string" && rec.id ? rec.id : crypto.randomUUID(),
+    type,
+    kind: typeof rec.kind === "string" ? rec.kind : "",
+    minStars,
+  };
+}
+
+function asGroup(raw: unknown): SparkGroup {
+  if (!raw || typeof raw !== "object") return emptyGroup();
+  const rec = raw as Record<string, unknown>;
+  const sparks = Array.isArray(rec.sparks)
+    ? rec.sparks.map(asRule).filter((row): row is SparkRule => row !== null)
+    : [];
+  return {
+    id: typeof rec.id === "string" && rec.id ? rec.id : crypto.randomUUID(),
+    join: asJoin(rec.join),
+    sparks,
+  };
+}
+
+export function normalizeNode(raw: unknown): NodeFilter {
+  if (!raw || typeof raw !== "object") return emptyNode();
+  const rec = raw as Record<string, unknown>;
+  if (Array.isArray(rec.groups) && rec.groups.length > 0) {
+    return { join: asJoin(rec.join), groups: rec.groups.map(asGroup) };
+  }
+  if (Array.isArray(rec.sparks)) {
+    const sparks = rec.sparks.map(asRule).filter((row): row is SparkRule => row !== null);
+    return { join: "and", groups: [{ id: crypto.randomUUID(), join: "and", sparks }] };
+  }
+  return emptyNode();
+}
+
+export function normalizeFilter(raw: unknown): FilterState | null {
+  if (!raw || typeof raw !== "object") return null;
+  const rec = raw as Record<string, unknown>;
+  const sort: SortKey = SORT_KEYS.includes(rec.sort as SortKey) ? (rec.sort as SortKey) : "rankScore";
+  return {
+    query: typeof rec.query === "string" ? rec.query : "",
+    sort,
+    tree: normalizeNode(rec.tree),
+    main: normalizeNode(rec.main),
+  };
+}
+
+export function cloneFilter(filter: FilterState): FilterState {
+  return normalizeFilter(JSON.parse(JSON.stringify(filter))) ?? emptyFilter();
 }

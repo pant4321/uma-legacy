@@ -10,7 +10,9 @@ UmaExtractor needs to run while the game is on **Enhance → List** (Veteran Lis
 - Filter sparks in two columns:
   - **All** — the spark can sit on the main parent or either grandparent
   - **Main Parent** — the spark must sit on the veteran herself
-- Click **Add** under a color to insert a search box and star slider, then pick the factor
+- Click **Add** under a color to insert a search box and star picker, then pick the factor
+- Combine factors with **All (AND)** or **Any (OR)** inside a combination, then add more combinations for extra AND/OR groups
+- Save named presets in this browser, or export / import a JSON filter file
 - Search by name, skill, spark, or parent, and sort the results
 - Keep the last dump on this device so you can come back later
 

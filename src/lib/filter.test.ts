@@ -1,8 +1,16 @@
 import { describe, expect, it } from "vitest";
 import sample from "../data/sample-roster.json";
-import { applyFilter, emptyFilter, lineageSparks, sparksForFocus } from "./filter";
+import {
+  applyFilter,
+  describeNode,
+  emptyFilter,
+  emptyNode,
+  lineageSparks,
+  normalizeFilter,
+  sparksForFocus,
+} from "./filter";
 import { parseDump } from "./parseDump";
-import type { SparkRule } from "../types";
+import type { JoinMode, NodeFilter, SparkRule } from "../types";
 
 const veterans = parseDump(sample);
 
@@ -10,38 +18,81 @@ function rule(type: SparkRule["type"], kind: string, minStars: number): SparkRul
   return { id: `${type}-${kind}-${minStars}`, type, kind, minStars };
 }
 
+function node(rules: SparkRule[], groupJoin: JoinMode = "and", join: JoinMode = "and"): NodeFilter {
+  return { join, groups: [{ id: "g1", join: groupJoin, sparks: rules }] };
+}
+
 describe("applyFilter", () => {
   it("finds 3-star Stamina plus 3-star Medium on the main parent", () => {
     const filter = emptyFilter();
-    filter.main.sparks = [rule(1, "Stamina", 3), rule(2, "Medium", 3)];
+    filter.main = node([rule(1, "Stamina", 3), rule(2, "Medium", 3)]);
     expect(applyFilter(veterans, filter).map((v) => v.name)).toEqual(["Mejiro McQueen"]);
+  });
+
+  it("ORs factors in a combination so 3 Power or 3 Stamina matches Stamina", () => {
+    const filter = emptyFilter();
+    filter.main = node([rule(1, "Power", 3), rule(1, "Stamina", 3)], "or");
+    expect(applyFilter(veterans, filter).map((v) => v.name)).toEqual(["Mejiro McQueen"]);
+  });
+
+  it("still ANDs a combination by default", () => {
+    const filter = emptyFilter();
+    filter.main = node([rule(1, "Power", 3), rule(1, "Stamina", 3)]);
+    expect(applyFilter(veterans, filter)).toHaveLength(0);
+  });
+
+  it("ORs whole combinations", () => {
+    const filter = emptyFilter();
+    filter.main = {
+      join: "or",
+      groups: [
+        { id: "a", join: "and", sparks: [rule(1, "Power", 3)] },
+        { id: "b", join: "and", sparks: [rule(1, "Stamina", 3)] },
+      ],
+    };
+    expect(applyFilter(veterans, filter).map((v) => v.name)).toEqual(["Mejiro McQueen"]);
+  });
+
+  it("ANDs whole combinations", () => {
+    const filter = emptyFilter();
+    filter.main = {
+      join: "and",
+      groups: [
+        { id: "a", join: "and", sparks: [rule(1, "Stamina", 3)] },
+        { id: "b", join: "and", sparks: [rule(2, "Medium", 3)] },
+      ],
+    };
+    expect(applyFilter(veterans, filter).map((v) => v.name)).toEqual(["Mejiro McQueen"]);
+
+    filter.main.groups[1].sparks = [rule(1, "Power", 3)];
+    expect(applyFilter(veterans, filter)).toHaveLength(0);
   });
 
   it("treats All sparks as anywhere on the parent or either grandparent", () => {
     const filter = emptyFilter();
-    filter.tree.sparks = [rule(2, "Mile", 3)];
+    filter.tree = node([rule(2, "Mile", 3)]);
     expect(applyFilter(veterans, filter).map((v) => v.name)).toEqual(["Mejiro McQueen"]);
   });
 
   it("does not treat a grandparent spark as a Main Parent hit", () => {
     const filter = emptyFilter();
-    filter.main.sparks = [rule(2, "Mile", 3)];
+    filter.main = node([rule(2, "Mile", 3)]);
     expect(applyFilter(veterans, filter)).toHaveLength(0);
   });
 
   it("ANDs All and Main Parent columns", () => {
     const filter = emptyFilter();
-    filter.tree.sparks = [rule(2, "Mile", 3)];
-    filter.main.sparks = [rule(1, "Stamina", 3), rule(2, "Medium", 3)];
+    filter.tree = node([rule(2, "Mile", 3)]);
+    filter.main = node([rule(1, "Stamina", 3), rule(2, "Medium", 3)]);
     expect(applyFilter(veterans, filter).map((v) => v.name)).toEqual(["Mejiro McQueen"]);
 
-    filter.main.sparks = [rule(2, "Mile", 3)];
+    filter.main = node([rule(2, "Mile", 3)]);
     expect(applyFilter(veterans, filter)).toHaveLength(0);
   });
 
   it("ignores draft rows that have no factor chosen yet", () => {
     const filter = emptyFilter();
-    filter.main.sparks = [rule(1, "", 3)];
+    filter.main = node([rule(1, "", 3)]);
     expect(applyFilter(veterans, filter)).toHaveLength(veterans.length);
   });
 
@@ -56,6 +107,27 @@ describe("applyFilter", () => {
     const byName = emptyFilter();
     byName.query = "frontline elegance";
     expect(applyFilter(veterans, byName).map((v) => v.name)).toEqual(["Mejiro McQueen"]);
+  });
+});
+
+describe("normalizeFilter", () => {
+  it("wraps a legacy flat spark list into one AND combination", () => {
+    const filter = normalizeFilter({
+      query: "",
+      sort: "rankScore",
+      main: { sparks: [rule(1, "Stamina", 3)] },
+      tree: {},
+    });
+    expect(filter?.main.groups[0].join).toBe("and");
+    expect(filter?.main.groups[0].sparks).toEqual([rule(1, "Stamina", 3)]);
+  });
+});
+
+describe("describeNode", () => {
+  it("prints OR combinations", () => {
+    expect(describeNode(node([rule(1, "Power", 3), rule(1, "Stamina", 3)], "or"))).toBe(
+      "(Power ★★★ OR Stamina ★★★)",
+    );
   });
 });
 
@@ -75,5 +147,14 @@ describe("lineageSparks", () => {
     expect(names).toContain("Stamina");
     expect(names).toContain("Medium");
     expect(names).not.toContain("Mile");
+  });
+});
+
+describe("emptyNode", () => {
+  it("starts with one AND combination", () => {
+    const next = emptyNode();
+    expect(next.join).toBe("and");
+    expect(next.groups).toHaveLength(1);
+    expect(next.groups[0].join).toBe("and");
   });
 });

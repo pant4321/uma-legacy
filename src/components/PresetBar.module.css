@@ -1,0 +1,103 @@
+.bar {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid #243044;
+  border-radius: 10px;
+  background: #10151d;
+}
+
+.saveRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.saveRow input[type="text"],
+.saveRow input:not([type]) {
+  flex: 1;
+  min-width: 10rem;
+  border: 1px solid #2c3646;
+  border-radius: 8px;
+  background: #0d1219;
+  color: #e8edf4;
+  padding: 0.4rem 0.55rem;
+  font: inherit;
+  font-size: 0.82rem;
+}
+
+.saveRow button {
+  border: 1px solid #3d4c63;
+  border-radius: 8px;
+  background: #d7b56d;
+  color: #1a1408;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 650;
+  cursor: pointer;
+  padding: 0.35rem 0.65rem;
+}
+
+.ghost {
+  background: transparent !important;
+  color: #c5cdd8 !important;
+  font-weight: 500 !important;
+}
+
+.file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.list li {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #2c3646;
+  border-radius: 999px;
+  background: #0d1219;
+}
+
+.load {
+  border: 0;
+  background: transparent;
+  color: #e8edf4;
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+  padding: 0.25rem 0.2rem 0.25rem 0.65rem;
+}
+
+.remove {
+  border: 0;
+  background: transparent;
+  color: #8b96a6;
+  font: inherit;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem 0.2rem 0.2rem;
+}
+
+.hint,
+.error {
+  margin: 0;
+  font-size: 0.75rem;
+}
+
+.hint {
+  color: #8b96a6;
+}
+
+.error {
+  color: #f0a3a3;
+}
