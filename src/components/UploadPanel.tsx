@@ -3,11 +3,12 @@ import styles from "./UploadPanel.module.css";
 
 type Props = {
   error: string | null;
+  sampleLoading?: boolean;
   onText: (text: string) => void;
   onLoadSample: () => void;
 };
 
-export function UploadPanel({ error, onText, onLoadSample }: Props) {
+export function UploadPanel({ error, sampleLoading = false, onText, onLoadSample }: Props) {
   const [paste, setPaste] = useState("");
   const [dragging, setDragging] = useState(false);
 
@@ -70,8 +71,13 @@ export function UploadPanel({ error, onText, onLoadSample }: Props) {
         <button type="button" className={styles.primary} onClick={() => onText(paste)}>
           Load paste
         </button>
-        <button type="button" className={styles.ghost} onClick={onLoadSample}>
-          Load sample roster
+        <button
+          type="button"
+          className={styles.ghost}
+          onClick={onLoadSample}
+          disabled={sampleLoading}
+        >
+          {sampleLoading ? "Loading sample…" : "Load sample data.json"}
         </button>
       </div>
       {error ? <p className={styles.error}>{error}</p> : null}

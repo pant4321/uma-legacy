@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import sample from "./data/sample-roster.json";
 import { FilterPanel } from "./components/FilterPanel";
 import { HorseGrid } from "./components/HorseGrid";
 import { UploadPanel } from "./components/UploadPanel";
 import { applyFilter, emptyFilter, enrichVeterans } from "./lib/filter";
 import { matchedSparkKeys } from "./lib/inherit";
-import { ParseError, parseDump, parseDumpText } from "./lib/parseDump";
+import { ParseError, parseDumpText } from "./lib/parseDump";
 import { clearRoster, loadRoster, saveRoster } from "./lib/storage";
 import type { FilterState, SparkFocus, Veteran } from "./types";
 import styles from "./App.module.css";
@@ -17,6 +16,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   const [menuOpen, setMenuOpen] = useState(true);
+  const [sampleLoading, setSampleLoading] = useState(false);
 
   useEffect(() => {
     loadRoster()
@@ -46,6 +46,22 @@ export default function App() {
     }
   }
 
+  async function loadSample() {
+    setSampleLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`${import.meta.env.BASE_URL}sample-data.json`);
+      if (!response.ok) {
+        throw new Error(`Could not load sample data (${response.status}).`);
+      }
+      loadText(await response.text());
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not load sample data.");
+    } finally {
+      setSampleLoading(false);
+    }
+  }
+
   const filtered = useMemo(
     () => (veterans ? applyFilter(veterans, filter) : []),
     [veterans, filter],
@@ -61,8 +77,9 @@ export default function App() {
     return (
       <UploadPanel
         error={error}
+        sampleLoading={sampleLoading}
         onText={loadText}
-        onLoadSample={() => accept(parseDump(sample))}
+        onLoadSample={() => void loadSample()}
       />
     );
   }

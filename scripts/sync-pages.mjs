@@ -14,3 +14,4 @@ await copyIfExists(path.join(dist, "assets"), "assets");
 await copyIfExists(path.join(dist, "index.html"), "index.html");
 await copyIfExists(path.join(dist, "favicon.svg"), "favicon.svg");
 await copyIfExists(path.join(dist, ".nojekyll"), ".nojekyll");
+await copyIfExists(path.join(dist, "sample-data.json"), "sample-data.json");
